@@ -1,6 +1,6 @@
 module T = Multik.MakeMultik(
                struct
-                 type t = ()
+                 type t = unit
                  let init = ()
                  let render _ = Multik.Nothing
                  let update delta_time s =

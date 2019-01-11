@@ -1,3 +1,4 @@
+#include <stdbool.h>
 #include <SDL2/SDL.h>
 #include <caml/mlvalues.h>
 
@@ -29,6 +30,23 @@ console_init(value width, value height)
             return Val_unit;
         }
     }
+}
+
+CAMLprim value
+console_should_quit(value unit)
+{
+    bool result = false;
+
+    SDL_Event event;
+    while (SDL_PollEvent(&event)) {
+        switch (event.type) {
+        case SDL_QUIT:
+            result = true;
+            break;
+        }
+    }
+
+    return Bool_val(result);
 }
 
 CAMLprim value
