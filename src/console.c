@@ -1,9 +1,9 @@
-#include <stdbool.h>
 #include <SDL2/SDL.h>
 #include <caml/mlvalues.h>
+#include <stdio.h>
 
-SDL_Window *window = NULL;
-SDL_Renderer *renderer = NULL;
+static SDL_Window *window = NULL;
+static SDL_Renderer *renderer = NULL;
 
 CAMLprim value
 console_init(value width, value height)
@@ -35,18 +35,25 @@ console_init(value width, value height)
 CAMLprim value
 console_should_quit(value unit)
 {
-    bool result = false;
-
     SDL_Event event;
     while (SDL_PollEvent(&event)) {
         switch (event.type) {
         case SDL_QUIT:
-            result = true;
-            break;
+            return Val_true;
         }
     }
 
-    return Bool_val(result);
+    return Val_false;
+}
+
+CAMLprim value
+console_render(value unit)
+{
+    SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
+    SDL_RenderClear(renderer);
+    SDL_RenderPresent(renderer);
+
+    return Val_unit;
 }
 
 CAMLprim value
