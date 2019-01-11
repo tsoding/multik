@@ -8,6 +8,8 @@ static SDL_Renderer *renderer = NULL;
 CAMLprim value
 console_init(value width, value height)
 {
+    /* TODO(#1): console_init does not raise exceptions in case of errors */
+
     SDL_Init(SDL_INIT_EVERYTHING);
     if (window == NULL) {
         window = SDL_CreateWindow(
@@ -16,7 +18,6 @@ console_init(value width, value height)
             Int_val(width), Int_val(height),
             SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE);
         if (window == NULL) {
-            /* TODO: multik.c does not raise an error when failed to create an SDL window */
             return Val_unit;
         }
     }
@@ -26,7 +27,6 @@ console_init(value width, value height)
             window, -1,
             SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
         if (renderer == NULL) {
-            /* TODO: multik.c does not raise an error when failed to create an SDL renderer */
             return Val_unit;
         }
     }
