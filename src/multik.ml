@@ -19,6 +19,7 @@ module MakeMultik (A: Animation): Multik = struct
       if not (Console.should_quit ())
       then
         begin
+          (* TODO(#4): Animation is not rendered *)
           Console.render ();
           s |> A.update 0.33 |> loop
         end
