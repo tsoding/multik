@@ -1,5 +1,6 @@
 module T = Multik.MakeMultik(
                struct
+                 (* TODO(#3): Sample animation doesn't render anything substantial *)
                  type t = unit
                  let init = ()
                  let render _ = Multik.Nothing
