@@ -21,6 +21,7 @@ module MakeMultik (A: Animation): Multik = struct
         begin
           (* TODO(#4): Animation is not rendered *)
           Console.render ();
+          (* TODO(#5): FPS is not actually maintained *)
           s |> A.update 0.33 |> loop
         end
       else ()
