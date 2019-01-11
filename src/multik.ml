@@ -16,14 +16,14 @@ module type Multik =
 module MakeMultik (A: Animation): Multik = struct
   let run () =
     let rec loop (s: A.t): unit =
-      if not (Foo.console_should_quit ())
+      if not (Console.should_quit ())
       then
         begin
-          Foo.console_render ();
+          Console.render ();
           s |> A.update 0.33 |> loop
         end
       else ()
-    in Foo.console_init 800 600;
+    in Console.init 800 600;
        loop A.init;
-       Foo.console_free ()
+       Console.free ()
 end
