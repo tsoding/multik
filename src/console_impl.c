@@ -65,8 +65,18 @@ console_should_quit(value unit)
 CAMLprim value
 console_render(value unit)
 {
-    SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
-    SDL_RenderClear(renderer);
+    if (renderer == NULL) {
+        caml_failwith("Renderer is not initialized");
+    }
+
+    if (SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255) < 0) {
+        caml_failwith(SDL_GetError());
+    }
+
+    if (SDL_RenderClear(renderer) < 0) {
+        caml_failwith(SDL_GetError());
+    }
+
     SDL_RenderPresent(renderer);
 
     return Val_unit;
