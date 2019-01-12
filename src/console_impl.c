@@ -8,9 +8,10 @@ static SDL_Renderer *renderer = NULL;
 CAMLprim value
 console_init(value width, value height)
 {
-    /* TODO(#1): console_init does not raise exceptions in case of errors */
+    if (SDL_Init(SDL_INIT_EVERYTHING) < 0) {
+        goto fail;
+    }
 
-    SDL_Init(SDL_INIT_EVERYTHING);
     if (window == NULL) {
         window = SDL_CreateWindow(
             "Multik",
@@ -18,7 +19,7 @@ console_init(value width, value height)
             Int_val(width), Int_val(height),
             SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE);
         if (window == NULL) {
-            return Val_unit;
+            goto fail;
         }
     }
 
@@ -27,9 +28,24 @@ console_init(value width, value height)
             window, -1,
             SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
         if (renderer == NULL) {
-            return Val_unit;
+            goto fail;
         }
     }
+
+    return Val_unit;
+
+fail:
+    if (renderer != NULL) {
+        renderer = NULL;
+        SDL_DestroyRenderer(renderer);
+    }
+
+    if (window != NULL) {
+        window = NULL;
+        SDL_DestroyWindow(window);
+    }
+
+    caml_failwith(SDL_GetError());
 }
 
 CAMLprim value
