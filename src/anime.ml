@@ -7,6 +7,9 @@ module T = Multik.MakeMultik(
                  let update delta_time s =
                    delta_time |> string_of_float |> print_endline;
                    s
+
+                 let fps = 30
+                 let resolution = (1920, 1080)
                end)
 
 let () = T.run ()
