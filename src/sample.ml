@@ -3,7 +3,7 @@ type t = int
 let init = 0
 let render x = Picture.Color
                  ( Color.red
-                 , Picture.Rect (x, 0, 10, 10)
+                 , Picture.Rect (x, 0, 50, 50)
                  )
 let update _ x = x + 1
 
