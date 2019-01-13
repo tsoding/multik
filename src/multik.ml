@@ -22,7 +22,8 @@ module MakeMultik (A: Animation): Multik = struct
       if not (Console.should_quit ())
       then
         begin
-          (* TODO(#4): Animation is not rendered *)
+          Console.clear 0 0 0;
+          s |> A.render |> Picture.render;
           Console.render ();
           (* TODO(#5): FPS is not actually maintained *)
           s |> A.update 0.33 |> loop;
