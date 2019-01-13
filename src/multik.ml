@@ -1,4 +1,4 @@
-type picture = Nothing
+open Picture
 
 module type Animation =
   sig
