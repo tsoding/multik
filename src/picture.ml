@@ -1,6 +1,6 @@
 type picture = Nothing
              | Color of Color.t * picture
-             | Rect of float * float * float * float
+             | Rect of int * int * int * int
              | Compose of picture list
 
 let render (p: picture): unit =

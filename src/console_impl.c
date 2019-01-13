@@ -79,7 +79,21 @@ console_set_fill_color(value r, value g, value b)
 CAMLprim value
 console_fill_rect(value x, value y, value w, value h)
 {
-    /* TODO: console_fill_rect is not implemented */
+    if (renderer == NULL) {
+        caml_failwith("Renderer is not initialized");
+    }
+
+    SDL_Rect rect = {
+        .x = Val_int(x),
+        .y = Val_int(y),
+        .w = Val_int(w),
+        .h = Val_int(h)
+    };
+
+    if (SDL_RenderFillRect(renderer, &rect) < 0) {
+        caml_failwith(SDL_GetError());
+    }
+
     return Val_unit;
 }
 
