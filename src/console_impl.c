@@ -69,7 +69,7 @@ console_set_fill_color(value r, value g, value b)
         caml_failwith("Renderer is not initialized");
     }
 
-    if (SDL_SetRenderDrawColor(renderer, Val_int(r), Val_int(g), Val_int(b), 255) < 0) {
+    if (SDL_SetRenderDrawColor(renderer, Int_val(r), Int_val(g), Int_val(b), 255) < 0) {
         caml_failwith(SDL_GetError());
     }
 
@@ -84,11 +84,13 @@ console_fill_rect(value x, value y, value w, value h)
     }
 
     SDL_Rect rect = {
-        .x = Val_int(x),
-        .y = Val_int(y),
-        .w = Val_int(w),
-        .h = Val_int(h)
+        .x = Int_val(x),
+        .y = Int_val(y),
+        .w = Int_val(w),
+        .h = Int_val(h)
     };
+
+    printf("SDL_Rect: %d %d %d %d\n", rect.x, rect.y, rect.w, rect.h);
 
     /* TODO(#10): coordinates of rectangle in console_fill_rect do not correspond to what was passed from OCaml */
 
@@ -106,7 +108,7 @@ console_clear(value r, value g, value b)
         caml_failwith("Renderer is not initialized");
     }
 
-    if (SDL_SetRenderDrawColor(renderer, Val_int(r), Val_int(g), Val_int(b), 255) < 0) {
+    if (SDL_SetRenderDrawColor(renderer, Int_val(r), Int_val(g), Int_val(b), 255) < 0) {
         caml_failwith(SDL_GetError());
     }
 
