@@ -1,3 +1,3 @@
 let () =
-  let module A = Multik.Make(Anime) in
-  A.run ()
+  let module Animation = Multik.Make(Sample) in
+  Animation.run ()
