@@ -65,7 +65,14 @@ console_should_quit(value unit)
 CAMLprim value
 console_set_fill_color(value r, value g, value b)
 {
-    /* TODO: console_set_fill_color is not implemented */
+    if (renderer == NULL) {
+        caml_failwith("Renderer is not initialized");
+    }
+
+    if (SDL_SetRenderDrawColor(renderer, Val_int(r), Val_int(g), Val_int(b), 255) < 0) {
+        caml_failwith(SDL_GetError());
+    }
+
     return Val_unit;
 }
 
