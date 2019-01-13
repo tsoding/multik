@@ -1,4 +1,4 @@
-MLS=src/console.ml src/color.ml src/picture.ml src/multik.ml src/anime.ml
+MLS=src/console.ml src/color.ml src/picture.ml src/multik.ml src/anime.ml src/main.ml
 CFLAGS=$(shell pkg-config --cflags --libs sdl2)
 
 multik.opt: src/console_impl.o $(MLS)

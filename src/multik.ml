@@ -15,7 +15,7 @@ module type Multik =
     val run : unit -> unit
   end
 
-module MakeMultik (A: Animation): Multik = struct
+module Make (A: Animation): Multik = struct
   let run () =
     let (width, height) = A.resolution in
     let rec loop (s: A.t): unit =
