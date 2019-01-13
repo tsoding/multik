@@ -63,6 +63,20 @@ console_should_quit(value unit)
 }
 
 CAMLprim value
+console_set_fill_color(value r, value g, value b)
+{
+    /* TODO: console_set_fill_color is not implemented */
+    return Val_unit;
+}
+
+CAMLprim value
+console_fill_rect(value x, value y, value w, value h)
+{
+    /* TODO: console_fill_rect is not implemented */
+    return Val_unit;
+}
+
+CAMLprim value
 console_render(value unit)
 {
     if (renderer == NULL) {
