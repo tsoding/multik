@@ -1,9 +1,14 @@
 #include <SDL2/SDL.h>
 #include <caml/mlvalues.h>
 #include <stdio.h>
+#include <cairo.h>
 
 static SDL_Window *window = NULL;
 static SDL_Renderer *renderer = NULL;
+static SDL_Texture *texture = NULL;
+
+static cairo_surface_t *cairo_surface = NULL;
+static cairo_t *cairo_context = NULL;
 
 CAMLprim value
 console_init(value width, value height)
@@ -32,17 +37,33 @@ console_init(value width, value height)
         }
     }
 
+    if (texture == NULL) {
+        texture = SDL_CreateTexture(
+            renderer,
+            SDL_PIXELFORMAT_ARGB8888,
+            SDL_TEXTUREACCESS_STREAMING,
+            Int_val(width), Int_val(height));
+        if (texture == NULL) {
+            goto fail;
+        }
+    }
+
     return Val_unit;
 
 fail:
+    if (texture != NULL) {
+        SDL_DestroyTexture(texture);
+        texture = NULL;
+    }
+
     if (renderer != NULL) {
-        renderer = NULL;
         SDL_DestroyRenderer(renderer);
+        renderer = NULL;
     }
 
     if (window != NULL) {
-        window = NULL;
         SDL_DestroyWindow(window);
+        window = NULL;
     }
 
     caml_failwith(SDL_GetError());
@@ -65,13 +86,11 @@ console_should_quit(value unit)
 CAMLprim value
 console_set_fill_color(value r, value g, value b)
 {
-    if (renderer == NULL) {
-        caml_failwith("Renderer is not initialized");
+    if (cairo_context == NULL) {
+        caml_failwith("Cairo Context is not initialized");
     }
 
-    if (SDL_SetRenderDrawColor(renderer, Int_val(r), Int_val(g), Int_val(b), 255) < 0) {
-        caml_failwith(SDL_GetError());
-    }
+    cairo_set_source_rgb(cairo_context, Double_val(r), Double_val(g), Double_val(b));
 
     return Val_unit;
 }
@@ -79,21 +98,12 @@ console_set_fill_color(value r, value g, value b)
 CAMLprim value
 console_fill_rect(value x, value y, value w, value h)
 {
-    if (renderer == NULL) {
-        caml_failwith("Renderer is not initialized");
+    if (cairo_context == NULL) {
+        caml_failwith("Cairo Context is not initialized");
     }
 
-    SDL_Rect rect = {
-        .x = (int) Double_val(x),
-        .y = (int) Double_val(y),
-        .w = (int) Double_val(w),
-        .h = (int) Double_val(h)
-    };
-
-
-    if (SDL_RenderFillRect(renderer, &rect) < 0) {
-        caml_failwith(SDL_GetError());
-    }
+    cairo_rectangle(cairo_context, Double_val(x), Double_val(y), Double_val(w), Double_val(h));
+    cairo_fill(cairo_context);
 
     return Val_unit;
 }
@@ -101,17 +111,12 @@ console_fill_rect(value x, value y, value w, value h)
 CAMLprim value
 console_clear(value r, value g, value b)
 {
-    if (renderer == NULL) {
-        caml_failwith("Renderer is not initialized");
+    if (cairo_context == NULL) {
+        caml_failwith("Cairo Context is not initialized");
     }
 
-    if (SDL_SetRenderDrawColor(renderer, Int_val(r), Int_val(g), Int_val(b), 255) < 0) {
-        caml_failwith(SDL_GetError());
-    }
-
-    if (SDL_RenderClear(renderer) < 0) {
-        caml_failwith(SDL_GetError());
-    }
+    cairo_set_source_rgb(cairo_context, Double_val(r), Double_val(g), Double_val(b));
+    cairo_paint(cairo_context);
 
     return Val_unit;
 }
@@ -123,6 +128,16 @@ console_render(value unit)
         caml_failwith("Renderer is not initialized");
     }
 
+    if (cairo_context != NULL) {
+        caml_failwith("Rendering inside of Cairo context");
+    }
+
+    SDL_Rect view_port;
+    SDL_RenderGetViewport(renderer, &view_port);
+    SDL_RenderCopy(renderer, texture,
+                   &view_port,
+                   &view_port);
+
     SDL_RenderPresent(renderer);
 
     return Val_unit;
@@ -131,6 +146,11 @@ console_render(value unit)
 CAMLprim value
 console_free(value unit)
 {
+    if (texture != NULL) {
+        SDL_DestroyTexture(texture);
+        texture = NULL;
+    }
+
     if (renderer != NULL) {
         SDL_DestroyRenderer(renderer);
         renderer = NULL;
@@ -149,5 +169,55 @@ console_free(value unit)
 CAMLprim value
 console_fill_circle(value x, value y, value r)
 {
+    return Val_unit;
+}
+
+CAMLprim value
+start_cairo_render(value unit)
+{
+    if (texture == NULL) {
+        caml_failwith("Texture is not initialized");
+    }
+
+    if (renderer == NULL) {
+        caml_failwith("Renderer is not initialized");
+    }
+
+    if (cairo_surface != NULL) {
+        fprintf(stderr, "[WARN] Cairo surface double initialization\n");
+        return Val_unit;
+    }
+
+    SDL_Rect viewport;
+    SDL_RenderGetViewport(renderer, &viewport);
+
+    void *pixels;
+    int pitch;
+
+    SDL_LockTexture(texture, NULL, &pixels, &pitch);
+    cairo_surface = cairo_image_surface_create_for_data(
+        pixels,
+        CAIRO_FORMAT_ARGB32,
+        viewport.w, viewport.h, pitch);
+    cairo_context = cairo_create(cairo_surface);
+
+    return Val_unit;
+}
+
+CAMLprim value
+stop_cairo_render(value unit)
+{
+    if (cairo_context != NULL) {
+        cairo_destroy(cairo_context);
+        cairo_context = NULL;
+    }
+
+    if (cairo_surface != NULL) {
+        cairo_surface_destroy(cairo_surface);
+        cairo_surface = NULL;
+    }
+
+    SDL_UnlockTexture(texture);
+
     return Val_unit;
 }

@@ -24,7 +24,6 @@ module Make (A: Animation): Multik = struct
       if not (Console.should_quit ())
       then
         begin
-          Console.clear 0 0 0;
           s |> A.render |> Picture.render;
           Console.render ();
           let s1 = s |> A.update delta_time in

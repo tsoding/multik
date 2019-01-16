@@ -18,4 +18,7 @@ let render (p: picture): unit =
        render_with_context c1 p1
     | Circle ((x, y), r) ->
        Console.fill_circle x y r
-  in render_with_context Color.black p
+  in Console.start_cairo_render ();
+     Console.clear 0.0 0.0 0.0;
+     render_with_context Color.black p;
+     Console.stop_cairo_render ()

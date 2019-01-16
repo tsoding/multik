@@ -16,7 +16,7 @@ let render state =
   (* TODO: state should drown as circle *)
   Picture.Color
     ( Color.red
-    , Picture.Circle ((x, y), 50.0)
+    , Picture.Rect (x, y, 50.0, 50.0)
     )
 
 let update delta_time state =
@@ -25,5 +25,5 @@ let update delta_time state =
   (* TODO: update should handle wall collisions *)
   { state with position = (x +. dx *. delta_time, y +. dy *. delta_time) }
 
-let fps = 60
+let fps = 200
 let resolution = (800, 600)
