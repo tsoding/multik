@@ -90,9 +90,6 @@ console_fill_rect(value x, value y, value w, value h)
         .h = Int_val(h)
     };
 
-    printf("SDL_Rect: %d %d %d %d\n", rect.x, rect.y, rect.w, rect.h);
-
-    /* TODO(#10): coordinates of rectangle in console_fill_rect do not correspond to what was passed from OCaml */
 
     if (SDL_RenderFillRect(renderer, &rect) < 0) {
         caml_failwith(SDL_GetError());

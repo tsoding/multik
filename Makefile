@@ -2,7 +2,7 @@ MLS=src/console.ml src/color.ml src/picture.ml src/multik.ml src/sample.ml src/m
 CFLAGS=$(shell pkg-config --cflags --libs sdl2)
 
 multik.opt: src/console_impl.o $(MLS)
-	ocamlopt -I ./src/ -o multik.opt src/console_impl.o $(MLS) -ccopt "$(CFLAGS)"
+	ocamlfind ocamlopt -linkpkg -package threads -thread -I ./src/ -o multik.opt src/console_impl.o $(MLS) -ccopt "$(CFLAGS)"
 
 src/console_impl.o: src/console_impl.c
 	ocamlopt -c src/console_impl.c -ccopt "$(CFLAGS)"

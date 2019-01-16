@@ -18,15 +18,22 @@ module type Multik =
 module Make (A: Animation): Multik = struct
   let run () =
     let (width, height) = A.resolution in
+    let delta_time = 1.0 /. (float_of_int A.fps) in
     let rec loop (s: A.t): unit =
+      let frame_begin = Sys.time () in
       if not (Console.should_quit ())
       then
         begin
           Console.clear 0 0 0;
           s |> A.render |> Picture.render;
           Console.render ();
-          (* TODO(#5): FPS is not actually maintained *)
-          s |> A.update 0.33 |> loop;
+          let s1 = s |> A.update delta_time in
+          let frame_work = Sys.time () -. frame_begin in
+          begin
+            if frame_work < delta_time
+            then Thread.delay (delta_time -. frame_work);
+            loop s1
+          end
         end
       else ()
     in Console.init width height;
