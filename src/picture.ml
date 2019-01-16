@@ -1,6 +1,7 @@
 type picture = Nothing
              | Color of Color.t * picture
-             | Rect of int * int * int * int
+             | Rect of float * float * float * float
+             | Circle of (float * float) * float
              | Compose of picture list
 
 let render (p: picture): unit =
@@ -15,4 +16,6 @@ let render (p: picture): unit =
        List.iter (render_with_context c) ps
     | Color (c1, p1) ->
        render_with_context c1 p1
+    | Circle ((x, y), r) ->
+       Console.fill_circle x y r
   in render_with_context Color.black p

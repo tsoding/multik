@@ -84,10 +84,10 @@ console_fill_rect(value x, value y, value w, value h)
     }
 
     SDL_Rect rect = {
-        .x = Int_val(x),
-        .y = Int_val(y),
-        .w = Int_val(w),
-        .h = Int_val(h)
+        .x = (int) Double_val(x),
+        .y = (int) Double_val(y),
+        .w = (int) Double_val(w),
+        .h = (int) Double_val(h)
     };
 
 
@@ -143,5 +143,11 @@ console_free(value unit)
 
     SDL_Quit();
 
+    return Val_unit;
+}
+
+CAMLprim value
+console_fill_circle(value x, value y, value r)
+{
     return Val_unit;
 }
