@@ -16,8 +16,10 @@ let render (p: picture): unit =
        List.iter (render_with_context c) ps
     | Color (c1, p1) ->
        render_with_context c1 p1
-    | Circle ((x, y), r) ->
-       Console.fill_circle x y r
+    | Circle ((x, y), radius) ->
+       let (r, g, b) = c
+       in Console.set_fill_color r g b;
+          Console.fill_circle x y radius
   in Console.start_cairo_render ();
      Console.clear 0.0 0.0 0.0;
      render_with_context Color.black p;

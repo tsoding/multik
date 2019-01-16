@@ -13,10 +13,9 @@ let init =
 
 let render state =
   let (x, y) = state.position in
-  (* TODO: state should drown as circle *)
   Picture.Color
     ( Color.red
-    , Picture.Rect (x, y, 50.0, 50.0)
+    , Picture.Circle ((x, y), 50.0)
     )
 
 let update delta_time state =

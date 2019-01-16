@@ -169,6 +169,15 @@ console_free(value unit)
 CAMLprim value
 console_fill_circle(value x, value y, value r)
 {
+    if (cairo_context == NULL) {
+        caml_failwith("Cairo Context is not initialized");
+    }
+
+    cairo_arc(cairo_context,
+              Double_val(x), Double_val(y), Double_val(r),
+              0.0, 2 * M_PI);
+    cairo_fill(cairo_context);
+
     return Val_unit;
 }
 
