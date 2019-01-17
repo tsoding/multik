@@ -1,4 +1,3 @@
-(* TODO(#3): Sample animation doesn't render anything substantial *)
 type t =
   {
     position: float * float;
