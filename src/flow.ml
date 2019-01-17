@@ -40,3 +40,6 @@ let rec concat (xs1: 'a t) (xs2: 'a t): 'a t =
 (* TODO: Should (Flow.cycle Nil) throw an error? *)
 let rec cycle (xs: 'a t): 'a t =
   concat xs (cycle xs)
+
+let rec iterate (f: 'a -> 'a) (init: 'a): 'a t =
+  Cons (lazy init, lazy (iterate f (f init)))
