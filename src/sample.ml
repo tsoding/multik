@@ -42,3 +42,5 @@ let update delta_time state =
   state |> wall_collision |> move delta_time
 
 let fps = 60
+
+let frames = Flow.Nil

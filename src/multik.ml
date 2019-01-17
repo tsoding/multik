@@ -6,6 +6,7 @@ module type Animation =
     val init : t
     val render : t -> picture
     val update : float -> t -> t
+    val frames : picture Flow.t
     val fps : int
     val resolution : int * int
   end
