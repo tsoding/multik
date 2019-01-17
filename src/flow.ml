@@ -37,7 +37,7 @@ let rec concat (xs1: 'a t) (xs2: 'a t): 'a t =
   | Nil -> xs2
   | Cons (x, xs) -> Cons (x, lazy (concat (Lazy.force xs) xs2))
 
-(* TODO: Should (Flow.cycle Nil) throw an error? *)
+(* TODO(#18): Should (Flow.cycle Nil) throw an error? *)
 let rec cycle (xs: 'a t): 'a t =
   concat xs (cycle xs)
 
