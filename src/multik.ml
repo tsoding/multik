@@ -1,12 +1,10 @@
-open Picture
-
 module type Animation =
   sig
     type t
     val init : t
-    val render : t -> picture
+    val render : t -> Picture.t
     val update : float -> t -> t
-    val frames : picture Flow.t
+    val frames : Picture.t Flow.t
     val fps : int
     val resolution : int * int
   end
