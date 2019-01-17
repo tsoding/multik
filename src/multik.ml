@@ -29,7 +29,7 @@ module Make (A: Animation): Multik = struct
                Lazy.force rest_frames |> loop
              end
            end
-        (* TODO: how should we handle the end of the flow of frames? *)
+        (* TODO(#19): how should we handle the end of the flow of frames? *)
         | Nil -> ()
       else ()
     in Console.init width height;
