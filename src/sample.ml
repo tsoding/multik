@@ -43,4 +43,7 @@ let update delta_time state =
 
 let fps = 60
 
-let frames = Flow.Nil
+let frames =
+  init
+  |> Flow.iterate (update (1.0 /. float_of_int fps))
+  |> Flow.map render

@@ -1,9 +1,5 @@
 module type Animation =
   sig
-    type t
-    val init : t
-    val render : t -> Picture.t
-    val update : float -> t -> t
     val frames : Picture.t Flow.t
     val fps : int
     val resolution : int * int
