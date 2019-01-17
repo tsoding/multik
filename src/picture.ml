@@ -1,11 +1,11 @@
-type picture = Nothing
-             | Color of Color.t * picture
-             | Rect of float * float * float * float
-             | Circle of (float * float) * float
-             | Compose of picture list
+type t = Nothing
+       | Color of Color.t * t
+       | Rect of float * float * float * float
+       | Circle of (float * float) * float
+       | Compose of t list
 
-let render (p: picture): unit =
-  let rec render_with_context (c: Color.t) (p: picture): unit =
+let render (p: t): unit =
+  let rec render_with_context (c: Color.t) (p: t): unit =
     match p with
     | Nothing -> ()
     | Rect (x, y, w, h) ->

@@ -1,11 +1,6 @@
-open Picture
-
 module type Animation =
   sig
-    type t
-    val init : t
-    val render : t -> picture
-    val update : float -> t -> t
+    val frames : Picture.t Flow.t
     val fps : int
     val resolution : int * int
   end
@@ -19,23 +14,25 @@ module Make (A: Animation): Multik = struct
   let run () =
     let (width, height) = A.resolution in
     let delta_time = 1.0 /. (float_of_int A.fps) in
-    let rec loop (s: A.t): unit =
+    let rec loop (frames: Picture.t Flow.t): unit =
       let frame_begin = Sys.time () in
       if not (Console.should_quit ())
       then
-        begin
-          s |> A.render |> Picture.render;
-          Console.render ();
-          let s1 = s |> A.update delta_time in
-          let frame_work = Sys.time () -. frame_begin in
-          begin
-            if frame_work < delta_time
-            then Thread.delay (delta_time -. frame_work);
-            loop s1
-          end
-        end
+        match frames with
+        | Cons (frame, rest_frames) ->
+           begin
+             Lazy.force frame |> Picture.render;
+             Console.render ();
+             let frame_work = Sys.time () -. frame_begin in
+             begin
+               (delta_time -. frame_work) |> max 0.0 |> Thread.delay;
+               Lazy.force rest_frames |> loop
+             end
+           end
+        (* TODO(#19): how should we handle the end of the flow of frames? *)
+        | Nil -> ()
       else ()
     in Console.init width height;
-       loop A.init;
+       loop A.frames;
        Console.free ()
 end

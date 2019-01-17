@@ -1,4 +1,3 @@
-(* TODO(#3): Sample animation doesn't render anything substantial *)
 type t =
   {
     position: float * float;
@@ -42,3 +41,8 @@ let update delta_time state =
   state |> wall_collision |> move delta_time
 
 let fps = 60
+
+let frames =
+  init
+  |> Flow.iterate (update (1.0 /. float_of_int fps))
+  |> Flow.map render
