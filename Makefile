@@ -1,5 +1,5 @@
 MLS=src/console.ml src/color.ml src/picture.ml src/multik.ml src/sample.ml src/main.ml
-CFLAGS=$(shell pkg-config --cflags sdl2 cairo)
+CFLAGS=-Wall -Werror $(shell pkg-config --cflags sdl2 cairo)
 LIBS=$(shell pkg-config --libs sdl2 cairo)
 
 multik.opt: src/console_impl.o $(MLS)
