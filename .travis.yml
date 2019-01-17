@@ -1,0 +1,17 @@
+language: c
+sudo: required
+addons:
+  apt:
+    packages:
+      - libsdl2-dev
+install:
+  - wget https://raw.githubusercontent.com/ocaml/ocaml-ci-scripts/master/.travis-ocaml.sh
+  - bash -ex .travis-ocaml.sh
+  - opam install -y ocamlfind
+script:
+  - eval `opam config env`
+  - make
+env:
+  - OCAML_VERSION=4.04
+os:
+  - linux

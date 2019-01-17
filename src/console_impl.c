@@ -1,6 +1,9 @@
-#include <SDL2/SDL.h>
-#include <caml/mlvalues.h>
 #include <stdio.h>
+
+#include <caml/mlvalues.h>
+#include <caml/fail.h>
+
+#include <SDL2/SDL.h>
 #include <cairo.h>
 
 static SDL_Window *window = NULL;
@@ -66,7 +69,9 @@ fail:
         window = NULL;
     }
 
-    caml_failwith(SDL_GetError());
+    failwith(SDL_GetError());
+
+    return Val_unit;
 }
 
 CAMLprim value
