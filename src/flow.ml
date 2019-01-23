@@ -1,53 +1,57 @@
-type 'a t = Nil | Cons of 'a Lazy.t * 'a t Lazy.t
+type 'a cons = Nil | Cons of 'a Lazy.t * 'a t
+and 'a t =
+  {
+    flow : 'a cons Lazy.t
+  }
+
+let nil: 'a t = { flow = lazy Nil }
 
 let rec of_list (xs: 'a list): 'a t =
-  match xs with
-  | [] -> Nil
-  | x :: xs -> Cons (lazy x, lazy (of_list xs))
+  {
+    flow = lazy
+             (match xs with
+              | [] -> Nil
+              | x :: xs -> Cons (lazy x, of_list xs))
+  }
 
 let rec as_list (xs: 'a t): 'a list =
-  match xs with
+  match Lazy.force xs.flow with
   | Nil -> []
-  | Cons (x, xs) -> Lazy.force x :: as_list (Lazy.force xs)
-
-let rec iter (f: 'a -> unit) (xs: 'a t): unit =
-  match xs with
-  | Nil -> ()
-  | Cons (x, xs) ->
-     Lazy.force x |> f;
-     Lazy.force xs |> iter f
+  | Cons (x, xs) -> Lazy.force x :: as_list xs
 
 let rec map (f: 'a -> 'b) (xs: 'a t): 'b t =
-  match xs with
-  | Nil -> Nil
-  | Cons (x, xs) ->
-     Cons (lazy (Lazy.force x |> f),
-           lazy (Lazy.force xs |> map f))
-
-let rec scanl (f: 'a -> 'b -> 'a) (init: 'a) (xs: 'b t): 'a t =
-  match xs with
-  | Nil -> Nil
-  | Cons (x, xs) ->
-     Cons (lazy init,
-           lazy (Lazy.force xs
-                 |> scanl f (Lazy.force x |> f init)))
+  {
+    flow = lazy
+      (match Lazy.force xs.flow with
+       | Nil -> Nil
+       | Cons (x, xs) ->
+          Cons (lazy (Lazy.force x |> f),
+                map f xs))
+  }
 
 let rec concat (xs1: 'a t) (xs2: 'a t): 'a t =
-  match xs1 with
-  | Nil -> xs2
-  | Cons (x, xs) -> Cons (x, lazy (concat (Lazy.force xs) xs2))
+  {
+    flow = lazy
+             (match Lazy.force xs1.flow with
+              | Nil -> Lazy.force xs2.flow
+              | Cons (x, xs) -> Cons (x, concat xs xs2))
+  }
 
 (* TODO(#18): Should (Flow.cycle Nil) throw an error? *)
 let rec cycle (xs: 'a t): 'a t =
   concat xs (cycle xs)
 
 let rec iterate (f: 'a -> 'a) (init: 'a): 'a t =
-  Cons (lazy init, lazy (iterate f (f init)))
+  {
+    flow = lazy (Cons (lazy init, iterate f (f init)))
+  }
 
 let rec take (n : int) (xs : 'a t): 'a t =
-  if n <= 0
-  then Nil
-  else match xs with
-       | Nil -> Nil
-       | Cons (x, xs) ->
-          Cons (x, lazy (take (n - 1) (Lazy.force xs)))
+  {
+    flow = lazy (if n <= 0
+                 then Nil
+                 else match Lazy.force xs.flow with
+                      | Nil -> Nil
+                      | Cons (x, xs) ->
+                         Cons (x, take (n - 1) xs))
+  }

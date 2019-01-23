@@ -18,7 +18,7 @@ module Make (A: Animation): Multik = struct
       let frame_begin = Sys.time () in
       if not (Console.should_quit ())
       then
-        match frames with
+        match Lazy.force frames.flow with
         | Cons (frame, rest_frames) ->
            begin
              Lazy.force frame |> Picture.render;
@@ -32,7 +32,7 @@ module Make (A: Animation): Multik = struct
                 *   3. Observed animation lasts >6 seconds
                 *)
                (delta_time -. frame_work) |> max 0.0 |> Thread.delay;
-               Lazy.force rest_frames |> loop
+               loop rest_frames
              end
            end
         (* TODO(#19): how should we handle the end of the flow of frames? *)
