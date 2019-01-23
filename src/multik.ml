@@ -21,7 +21,7 @@ module Make (A: Animation): Multik = struct
         match Lazy.force frames.flow with
         | Cons (frame, rest_frames) ->
            begin
-             Lazy.force frame |> Picture.render;
+             Lazy.force frame |> Console.renderPicture;
              Console.render ();
              let frame_work = Sys.time () -. frame_begin in
              begin
