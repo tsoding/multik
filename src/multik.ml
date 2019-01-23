@@ -42,17 +42,14 @@ module Make (A: Animation): Multik = struct
                loop rest_frames
              end
            end
-        (* TODO(#19): how should we handle the end of the flow of frames? *)
-        | Nil -> ()
+        | Nil -> [empty_animation_frame]
+                 |> Flow.of_list
+                 |> Flow.cycle
+                 |> loop
       else ()
     in Console.init width height;
        if Flow.is_nil A.frames
-       then [empty_animation_frame]
-            |> Flow.of_list
-            |> Flow.cycle
-            |> loop
-       else A.frames
-            |> Flow.cycle
-            |> loop;
+       then loop Flow.nil
+       else A.frames |> Flow.cycle |> loop;
        Console.free ()
 end
