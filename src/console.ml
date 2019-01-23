@@ -25,7 +25,7 @@ let renderPicture (p: Picture.t): unit =
        let (r, g, b) = c
        in set_fill_color r g b;
           fill_circle x y radius
-    (* TODO: Picture.Text is not interpreted in Console.renderPicture *)
+    (* TODO(#21): Picture.Text is not interpreted in Console.renderPicture *)
     | Text ((x, y), _) ->
        let (r, g, b) = c
        in set_fill_color r g b;
