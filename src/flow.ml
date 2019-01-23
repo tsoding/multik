@@ -43,3 +43,11 @@ let rec cycle (xs: 'a t): 'a t =
 
 let rec iterate (f: 'a -> 'a) (init: 'a): 'a t =
   Cons (lazy init, lazy (iterate f (f init)))
+
+let rec take (n : int) (xs : 'a t): 'a t =
+  if n <= 0
+  then Nil
+  else match xs with
+       | Nil -> Nil
+       | Cons (x, xs) ->
+          Cons (x, lazy (take (n - 1) (Lazy.force xs)))
