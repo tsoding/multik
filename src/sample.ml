@@ -40,9 +40,10 @@ let move (delta_time: float) (state: t): t =
 let update delta_time state =
   state |> wall_collision |> move delta_time
 
-let fps = 60
+let fps = 30
 
 let frames =
   init
   |> Flow.iterate (update (1.0 /. float_of_int fps))
   |> Flow.map render
+  |> Flow.take 100
