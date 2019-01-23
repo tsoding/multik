@@ -33,7 +33,7 @@ module Make (A: Animation): Multik = struct
              let frame_work = Sys.time () -. frame_begin in
              begin
                (*
-                * TODO: The animation is replayed slower than it supposed to be
+                * TODO(#23): The animation is replayed slower than it supposed to be
                 *   1. Create animation with 100 frames and 30 fps
                 *   2. Expected animation should last ~3 seconds
                 *   3. Observed animation lasts >6 seconds
