@@ -42,9 +42,10 @@ let rec concat (xs1: 'a t) (xs2: 'a t): 'a t =
               | Cons (x, xs) -> Cons (x, concat xs xs2))
   }
 
-(* TODO(#18): Should (Flow.cycle Nil) throw an error? *)
 let rec cycle (xs: 'a t): 'a t =
-  concat xs { flow = lazy (Lazy.force (cycle xs).flow) }
+  if is_nil xs
+  then failwith "Empty flow"
+  else concat xs { flow = lazy (Lazy.force (cycle xs).flow) }
 
 let rec iterate (f: 'a -> 'a) (init: 'a): 'a t =
   {
