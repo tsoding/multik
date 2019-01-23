@@ -17,7 +17,7 @@ module Make (A: Animation): Multik = struct
     let empty_animation_frame =
       Picture.Color
         ( Color.red
-        (* TODO: "No Animation" sign is not rendered at the center of the screen *)
+        (* TODO(#22): "No Animation" sign is not rendered at the center of the screen *)
         , Picture.Text ((0.0, 0.0), "No Animation")
         )
     in
