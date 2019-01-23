@@ -39,6 +39,6 @@ module Make (A: Animation): Multik = struct
         | Nil -> ()
       else ()
     in Console.init width height;
-       loop A.frames;
+       A.frames |> Flow.cycle |> loop;
        Console.free ()
 end
