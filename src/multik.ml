@@ -14,6 +14,13 @@ module Make (A: Animation): Multik = struct
   let run () =
     let (width, height) = A.resolution in
     let delta_time = 1.0 /. (float_of_int A.fps) in
+    let empty_animation_frame =
+      Picture.Color
+        ( Color.red
+        (* TODO: "No Animation" sign is not rendered at the center of the screen *)
+        , Picture.Text ((0.0, 0.0), "No Animation")
+        )
+    in
     let rec loop (frames: Picture.t Flow.t): unit =
       let frame_begin = Sys.time () in
       if not (Console.should_quit ())
@@ -39,6 +46,13 @@ module Make (A: Animation): Multik = struct
         | Nil -> ()
       else ()
     in Console.init width height;
-       A.frames |> Flow.cycle |> loop;
+       if Flow.is_nil A.frames
+       then [empty_animation_frame]
+            |> Flow.of_list
+            |> Flow.cycle
+            |> loop
+       else A.frames
+            |> Flow.cycle
+            |> loop;
        Console.free ()
 end

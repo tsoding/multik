@@ -25,6 +25,11 @@ let renderPicture (p: Picture.t): unit =
        let (r, g, b) = c
        in set_fill_color r g b;
           fill_circle x y radius
+    (* TODO: Picture.Text is not interpreted in Console.renderPicture *)
+    | Text ((x, y), _) ->
+       let (r, g, b) = c
+       in set_fill_color r g b;
+          fill_rect x y 200.0 50.0
   in start_cairo_render ();
      clear 0.0 0.0 0.0;
      render_with_context Color.black p;

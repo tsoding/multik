@@ -6,6 +6,11 @@ and 'a t =
 
 let nil: 'a t = { flow = lazy Nil }
 
+let is_nil (xs : 'a t): bool =
+  match Lazy.force xs.flow with
+  | Nil -> true
+  | _   -> false
+
 let rec of_list (xs: 'a list): 'a t =
   {
     flow = lazy
