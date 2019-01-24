@@ -127,7 +127,7 @@ console_clear(value r, value g, value b)
 }
 
 CAMLprim value
-console_render(value unit)
+console_present(value unit)
 {
     if (renderer == NULL) {
         caml_failwith("Renderer is not initialized");

@@ -29,7 +29,7 @@ module Make (A: Animation): Multik = struct
         | Cons (frame, rest_frames) ->
            begin
              Lazy.force frame |> Console.renderPicture;
-             Console.render ();
+             Console.present ();
              let frame_work = Sys.time () -. frame_begin in
              begin
                (*

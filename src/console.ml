@@ -1,7 +1,7 @@
 external init: int -> int -> unit = "console_init"
 external free: unit -> unit = "console_free"
 external should_quit: unit -> bool = "console_should_quit"
-external render: unit -> unit = "console_render"
+external present: unit -> unit = "console_present"
 external set_fill_color: float -> float -> float -> unit = "console_set_fill_color"
 external fill_rect: float -> float -> float -> float -> unit = "console_fill_rect"
 external fill_circle: float -> float -> float -> unit = "console_fill_circle"
