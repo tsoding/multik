@@ -116,6 +116,18 @@ console_fill_rect(value x, value y, value w, value h)
 }
 
 CAMLprim value
+console_draw_text(value x, value y, value text)
+{
+    if (cairo_context == NULL) {
+        caml_failwith("Cairo Context is not initialized");
+    }
+
+    // TODO: console_draw_text is not implemented
+
+    return Val_unit;
+}
+
+CAMLprim value
 console_clear(value r, value g, value b)
 {
     if (cairo_context == NULL) {
