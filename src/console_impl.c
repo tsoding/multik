@@ -8,6 +8,8 @@
 
 static SDL_Window *window = NULL;
 static SDL_Renderer *renderer = NULL;
+// TODO(#25): Is it possible to get rid of the SDL_Texture in console_impl?
+//   And draw directly on renderer.
 static SDL_Texture *texture = NULL;
 
 static cairo_surface_t *cairo_surface = NULL;
@@ -114,6 +116,18 @@ console_fill_rect(value x, value y, value w, value h)
 }
 
 CAMLprim value
+console_draw_text(value x, value y, value text)
+{
+    if (cairo_context == NULL) {
+        caml_failwith("Cairo Context is not initialized");
+    }
+
+    // TODO(#26): console_draw_text is not implemented
+
+    return Val_unit;
+}
+
+CAMLprim value
 console_clear(value r, value g, value b)
 {
     if (cairo_context == NULL) {
@@ -127,7 +141,7 @@ console_clear(value r, value g, value b)
 }
 
 CAMLprim value
-console_render(value unit)
+console_present(value unit)
 {
     if (renderer == NULL) {
         caml_failwith("Renderer is not initialized");
