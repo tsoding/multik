@@ -122,7 +122,7 @@ console_draw_text(value x, value y, value text)
         caml_failwith("Cairo Context is not initialized");
     }
 
-    // TODO: font of the text is hardcoded
+    // TODO(#28): font of the text is hardcoded
     cairo_select_font_face(
         cairo_context, "Sans",
         CAIRO_FONT_SLANT_NORMAL,
