@@ -18,7 +18,7 @@ module Make (A: Animation): Multik = struct
       Picture.Color
         ( Color.red
         (* TODO(#22): "No Animation" sign is not rendered at the center of the screen *)
-        , Picture.Text ((0.0, 0.0), "No Animation")
+        , Picture.Text ((0.0, 90.0), "No Animation")
         )
     in
     let rec loop (frames: Picture.t Flow.t): unit =

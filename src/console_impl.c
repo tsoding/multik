@@ -122,7 +122,15 @@ console_draw_text(value x, value y, value text)
         caml_failwith("Cairo Context is not initialized");
     }
 
-    // TODO(#26): console_draw_text is not implemented
+    // TODO(#28): font of the text is hardcoded
+    cairo_select_font_face(
+        cairo_context, "Sans",
+        CAIRO_FONT_SLANT_NORMAL,
+        CAIRO_FONT_WEIGHT_BOLD);
+    cairo_set_font_size(cairo_context, 50.0);
+    cairo_move_to(cairo_context, Double_val(x), Double_val(y));
+    cairo_text_path(cairo_context, String_val(text));
+    cairo_fill(cairo_context);
 
     return Val_unit;
 }
