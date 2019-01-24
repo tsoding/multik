@@ -122,7 +122,7 @@ console_draw_text(value x, value y, value text)
         caml_failwith("Cairo Context is not initialized");
     }
 
-    // TODO: console_draw_text is not implemented
+    // TODO(#26): console_draw_text is not implemented
 
     return Val_unit;
 }
