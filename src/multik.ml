@@ -7,11 +7,15 @@ module type Animation =
 
 module type Multik =
   sig
-    val run : unit -> unit
+    val preview : unit -> unit
+    val render : string -> unit
   end
 
 module Make (A: Animation): Multik = struct
-  let run () =
+  (* TODO: Multik.render is not implemented *)
+  let render (filename: string): unit = ()
+
+  let preview () =
     let (width, height) = A.resolution in
     let delta_time = 1.0 /. (float_of_int A.fps) in
     let empty_animation_frame =
