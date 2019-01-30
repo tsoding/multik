@@ -7,20 +7,33 @@ module type Animation =
 
 module type Multik =
   sig
+    val preview : unit -> unit
+    val render : string -> unit
     val run : unit -> unit
   end
 
 module Make (A: Animation): Multik = struct
-  let run () =
-    let (width, height) = A.resolution in
-    let delta_time = 1.0 /. (float_of_int A.fps) in
-    let empty_animation_frame =
-      Picture.Color
-        ( Color.red
-        (* TODO(#22): "No Animation" sign is not rendered at the center of the screen *)
-        , Picture.Text ((0.0, 90.0), "No Animation")
-        )
-    in
+  let (width, height) = A.resolution
+  let delta_time = 1.0 /. (float_of_int A.fps)
+  let empty_animation_frame =
+    Picture.Color
+      ( Color.red
+      (* TODO(#22): "No Animation" sign is not rendered at the center of the screen *)
+      , Picture.Text ((0.0, 90.0), "No Animation")
+      )
+
+  let render (dirpath: string): unit =
+    if not (Sys.file_exists dirpath) then Unix.mkdir dirpath 0;
+    A.frames
+    |> Flow.zip (Flow.from 0)
+    |> Flow.iter (fun (index, picture) ->
+         let filename = dirpath
+                        ^ Filename.dir_sep
+                        ^ string_of_int index
+                        ^ ".png"
+         in Console.savePicture A.resolution filename picture)
+
+  let preview () =
     let rec loop (frames: Picture.t Flow.t): unit =
       let frame_begin = Sys.time () in
       if not (Console.should_quit ())
@@ -52,4 +65,11 @@ module Make (A: Animation): Multik = struct
        then loop Flow.nil
        else A.frames |> Flow.cycle |> loop;
        Console.free ()
+
+  let run () =
+    match Sys.argv |> Array.to_list with
+    | _ :: "preview" :: _ -> preview ()
+    | _ :: "render" :: dirpath :: _ -> render dirpath
+    | name :: _ -> Printf.printf "Using: %s <preview|render>" name
+    | _ -> Printf.printf "Using: <program> <preview|render>"
 end

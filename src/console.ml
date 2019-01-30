@@ -30,3 +30,6 @@ let renderPicture (p: Picture.t): unit =
      clear 0.0 0.0 0.0;
      render_with_context Color.black p;
      stop_cairo_render ()
+
+(* TODO(#30): Console.savePicture is not implemented *)
+let savePicture (resolution: int * int) (filename: string) (picture: Picture.t) : unit = ()
