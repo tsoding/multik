@@ -61,3 +61,12 @@ let rec take (n : int) (xs : 'a t): 'a t =
                       | Cons (x, xs) ->
                          Cons (x, take (n - 1) xs))
   }
+
+(* TODO: Flow.zip is not implemented *)
+let rec zip (xs : 'a t) (ys : 'b t): ('a * 'b) t = nil
+
+(* TODO: Flow.from is not implemented *)
+let rec from (n: int): int t = nil
+
+(* TODO: Flow.iter is not implemented *)
+let rec iter (f: 'a -> unit) (xs: 'a t): unit = ()
