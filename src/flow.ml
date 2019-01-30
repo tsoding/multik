@@ -69,4 +69,8 @@ let rec from (n: int): int t =
     flow = lazy (Cons (lazy n, from (n + 1)))
   }
 
-let rec iter (f: 'a -> unit) (xs: 'a t): unit = ()
+let rec iter (f: 'a -> unit) (xs: 'a t): unit =
+  match Lazy.force xs.flow with
+  | Nil -> ()
+  | Cons (x, xs) -> Lazy.force x |> f;
+                    iter f xs
