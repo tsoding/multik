@@ -21,7 +21,7 @@ module Make (A: Animation): Multik = struct
       )
 
   let render (dirpath: string): unit =
-    if not (Sys.file_exists dirpath) then Unix.mkdir dirpath 0;
+    if not (Sys.file_exists dirpath) then Unix.mkdir dirpath 0o755;
     A.frames
     |> Flow.zip (Flow.from 0)
     |> Flow.iter (fun (index, picture) ->
