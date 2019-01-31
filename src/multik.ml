@@ -7,8 +7,6 @@ module type Animation =
 
 module type Multik =
   sig
-    val preview : unit -> unit
-    val render : string -> unit
     val run : unit -> unit
   end
 
