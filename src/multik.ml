@@ -66,8 +66,12 @@ module Make (A: Animation): Multik = struct
 
   let run () =
     match Sys.argv |> Array.to_list with
-    | _ :: "preview" :: _ -> preview ()
-    | _ :: "render" :: dirpath :: _ -> render dirpath
-    | name :: _ -> Printf.printf "Using: %s <preview|render>" name
-    | _ -> Printf.printf "Using: <program> <preview|render>"
+    | _ :: "preview" :: _ ->
+       preview ()
+    | _ :: "render" :: dirpath :: _ ->
+       render dirpath
+    | name :: "render" :: _ ->
+       Printf.fprintf stderr "Using: %s render <dirpath>" name
+    | name :: _ -> Printf.fprintf stderr "Using: %s <preview|render>" name
+    | _ -> Printf.fprintf stderr "Using: <program> <preview|render>"
 end
