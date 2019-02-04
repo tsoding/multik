@@ -36,10 +36,10 @@ module Make (A: Animation): Multik = struct
       let frame_begin = Sys.time () in
       if not (Console.should_quit ())
       then
-        match Lazy.force frames.flow with
-        | Cons (frame, rest_frames) ->
+        match Flow.uncons frames with
+        | Some (frame, rest_frames) ->
            begin
-             Lazy.force frame |> Console.renderPicture;
+             frame |> Console.renderPicture;
              Console.present ();
              let frame_work = Sys.time () -. frame_begin in
              begin
@@ -53,10 +53,10 @@ module Make (A: Animation): Multik = struct
                loop rest_frames
              end
            end
-        | Nil -> [empty_animation_frame]
-                 |> Flow.of_list
-                 |> Flow.cycle
-                 |> loop
+        | None -> [empty_animation_frame]
+                  |> Flow.of_list
+                  |> Flow.cycle
+                  |> loop
       else ()
     in Console.init width height;
        if Flow.is_nil A.frames
