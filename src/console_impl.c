@@ -209,7 +209,22 @@ console_fill_circle(value x, value y, value r)
 }
 
 CAMLprim value
-start_cairo_render(value unit)
+start_cairo_render(value width, value height)
+{
+    if (cairo_surface != NULL) {
+        fprintf(stderr, "[WARN] Cairo surface double initialization\n");
+        return Val_unit;
+    }
+
+    cairo_surface = cairo_image_surface_create(
+        CAIRO_FORMAT_ARGB32, Int_val(width), Int_val(height));
+    cairo_context = cairo_create(cairo_surface);
+
+    return Val_unit;
+}
+
+CAMLprim value
+start_cairo_preview(value unit)
 {
     if (texture == NULL) {
         caml_failwith("Texture is not initialized");
@@ -241,7 +256,28 @@ start_cairo_render(value unit)
 }
 
 CAMLprim value
-stop_cairo_render(value unit)
+stop_cairo_render(value filename)
+{
+    if (cairo_surface == NULL) {
+        caml_failwith("Cairo Surface is not initialized");
+    }
+
+    cairo_status_t err = cairo_surface_write_to_png(cairo_surface, String_val(filename));
+    if (err != 0) {
+        caml_failwith(cairo_status_to_string(err));
+    }
+
+    cairo_destroy(cairo_context);
+    cairo_context = NULL;
+
+    cairo_surface_destroy(cairo_surface);
+    cairo_surface = NULL;
+
+    return Val_unit;
+}
+
+CAMLprim value
+stop_cairo_preview(value unit)
 {
     if (cairo_context != NULL) {
         cairo_destroy(cairo_context);
