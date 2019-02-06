@@ -20,7 +20,7 @@ module Make (A: Animation): Multik = struct
       , Picture.Text ((0.0, 90.0), 50.0, "No Animation")
       )
 
-  (* TODO: if the animation is infinite the rendering will be infinite *)
+  (* TODO(#40): if the animation is infinite the rendering will be infinite *)
   let render (dirpath: string): unit =
     if not (Sys.file_exists dirpath) then Unix.mkdir dirpath 0o755;
     A.frames
