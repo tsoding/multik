@@ -209,7 +209,7 @@ console_fill_circle(value x, value y, value r)
 }
 
 CAMLprim value
-start_cairo_render(value unit)
+start_cairo_preview(value unit)
 {
     if (texture == NULL) {
         caml_failwith("Texture is not initialized");
@@ -241,7 +241,7 @@ start_cairo_render(value unit)
 }
 
 CAMLprim value
-stop_cairo_render(value unit)
+stop_cairo_preview(value unit)
 {
     if (cairo_context != NULL) {
         cairo_destroy(cairo_context);

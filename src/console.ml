@@ -9,8 +9,8 @@ external fill_rect: float -> float -> float -> float -> unit = "console_fill_rec
 external fill_circle: float -> float -> float -> unit = "console_fill_circle"
 external draw_text: float -> float -> string -> unit = "console_draw_text"
 external clear: float -> float -> float -> unit = "console_clear"
-external start_cairo_render: unit -> unit = "start_cairo_render"
-external stop_cairo_render: unit -> unit = "stop_cairo_render"
+external start_cairo_preview: unit -> unit = "start_cairo_preview"
+external stop_cairo_preview: unit -> unit = "stop_cairo_preview"
 
 let renderPicture (p: Picture.t): unit =
   let rec render_with_context (c: Color.t) (p: Picture.t): unit =
@@ -28,10 +28,10 @@ let renderPicture (p: Picture.t): unit =
        fill_circle x y radius
     | Text ((x, y), text) ->
        draw_text x y text
-  in start_cairo_render ();
+  in start_cairo_preview ();
      clear 0.0 0.0 0.0;
      render_with_context Color.black p;
-     stop_cairo_render ()
+     stop_cairo_preview ()
 
 (* TODO(#30): Console.savePicture is not implemented *)
 let savePicture (resolution: int * int) (filename: string) (picture: Picture.t) : unit = ()
