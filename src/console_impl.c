@@ -217,7 +217,8 @@ start_cairo_render(value width, value height)
     }
 
     cairo_surface = cairo_image_surface_create(
-        Int_val(width), Int_val(height), CAIRO_FORMAT_ARGB32);
+        CAIRO_FORMAT_ARGB32, Int_val(width), Int_val(height));
+    cairo_context = cairo_create(cairo_surface);
 
     return Val_unit;
 }
