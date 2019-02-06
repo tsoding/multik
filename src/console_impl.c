@@ -258,7 +258,21 @@ start_cairo_preview(value unit)
 CAMLprim value
 stop_cairo_render(value filename)
 {
-    /* TODO: stop_cairo_render is not implemented */
+    if (cairo_surface == NULL) {
+        caml_failwith("Cairo Surface is not initialized");
+    }
+
+    cairo_status_t err = cairo_surface_write_to_png(cairo_surface, String_val(filename));
+    if (err != 0) {
+        caml_failwith(cairo_status_to_string(err));
+    }
+
+    cairo_destroy(cairo_context);
+    cairo_context = NULL;
+
+    cairo_surface_destroy(cairo_surface);
+    cairo_surface = NULL;
+
     return Val_unit;
 }
 
