@@ -211,7 +211,14 @@ console_fill_circle(value x, value y, value r)
 CAMLprim value
 start_cairo_render(value width, value height)
 {
-    /* TODO: start_cairo_render is not implemented */
+    if (cairo_surface != NULL) {
+        fprintf(stderr, "[WARN] Cairo surface double initialization\n");
+        return Val_unit;
+    }
+
+    cairo_surface = cairo_image_surface_create(
+        Int_val(width), Int_val(height), CAIRO_FORMAT_ARGB32);
+
     return Val_unit;
 }
 
