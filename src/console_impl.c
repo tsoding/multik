@@ -88,6 +88,28 @@ console_should_quit(value unit)
         switch (event.type) {
         case SDL_QUIT:
             return Val_true;
+
+        case SDL_WINDOWEVENT:
+            switch(event.window.event) {
+            case SDL_WINDOWEVENT_RESIZED:
+                if (renderer == NULL) {
+                    caml_failwith("Renderer is not initialized");
+                }
+
+                if (texture == NULL) {
+                    caml_failwith("Texture was not initialized");
+                }
+
+                SDL_DestroyTexture(texture);
+                texture = SDL_CreateTexture(
+                    renderer,
+                    SDL_PIXELFORMAT_ARGB8888,
+                    SDL_TEXTUREACCESS_STREAMING,
+                    event.window.data1,
+                    event.window.data2);
+                break;
+            }
+            break;
         }
     }
 
