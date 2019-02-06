@@ -9,7 +9,7 @@ external present: unit -> unit = "console_present"
 external set_fill_color: float -> float -> float -> unit = "console_set_fill_color"
 external fill_rect: float -> float -> float -> float -> unit = "console_fill_rect"
 external fill_circle: float -> float -> float -> unit = "console_fill_circle"
-external draw_text: float -> float -> string -> unit = "console_draw_text"
+external draw_text: float -> float -> float -> string -> unit = "console_draw_text"
 external clear: float -> float -> float -> unit = "console_clear"
 
 external start_cairo_preview: unit -> unit = "start_cairo_preview"
@@ -31,8 +31,8 @@ let rec render_with_context (c: Color.t) (p: Picture.t): unit =
      render_with_context c1 p1
   | Circle ((x, y), radius) ->
      fill_circle x y radius
-  | Text ((x, y), text) ->
-     draw_text x y text
+  | Text ((x, y), size, text) ->
+     draw_text x y size text
 
 let renderPicture (p: Picture.t): unit =
   start_cairo_preview ();

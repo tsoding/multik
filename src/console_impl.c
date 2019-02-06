@@ -116,7 +116,7 @@ console_fill_rect(value x, value y, value w, value h)
 }
 
 CAMLprim value
-console_draw_text(value x, value y, value text)
+console_draw_text(value x, value y, value size, value text)
 {
     if (cairo_context == NULL) {
         caml_failwith("Cairo Context is not initialized");
@@ -127,7 +127,7 @@ console_draw_text(value x, value y, value text)
         cairo_context, "Sans",
         CAIRO_FONT_SLANT_NORMAL,
         CAIRO_FONT_WEIGHT_BOLD);
-    cairo_set_font_size(cairo_context, 50.0);
+    cairo_set_font_size(cairo_context, Double_val(size));
     cairo_move_to(cairo_context, Double_val(x), Double_val(y));
     cairo_text_path(cairo_context, String_val(text));
     cairo_fill(cairo_context);
