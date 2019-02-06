@@ -1,6 +1,6 @@
 open Picture
 
-(* TODO: The project mixes up camel case and snake case for function names *)
+(* TODO(#35): The project mixes up camel case and snake case for function names *)
 
 external init: int -> int -> unit = "console_init"
 external free: unit -> unit = "console_free"
