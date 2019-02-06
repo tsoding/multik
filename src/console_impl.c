@@ -42,6 +42,10 @@ console_init(value width, value height)
         }
     }
 
+    if (SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND) < 0) {
+        goto fail;
+    }
+
     if (texture == NULL) {
         texture = SDL_CreateTexture(
             renderer,
@@ -144,6 +148,43 @@ console_clear(value r, value g, value b, value a)
 
     cairo_set_source_rgba(cairo_context, Double_val(r), Double_val(g), Double_val(b), Double_val(a));
     cairo_paint(cairo_context);
+
+    return Val_unit;
+}
+
+CAMLprim value
+fill_chess_pattern(value unit)
+{
+    if (renderer == NULL) {
+        caml_failwith("SDL Renderer is not initialized");
+    }
+
+    if (cairo_context == NULL) {
+        caml_failwith("Cairo Context is not initialized");
+    }
+
+    SDL_Rect viewport;
+    SDL_RenderGetViewport(renderer, &viewport);
+
+    const int cell_size = 12;
+    const int rows = (viewport.h + cell_size) / cell_size;
+    const int columns = (viewport.w + cell_size) / cell_size;
+
+    for (int y = 0; y < rows; ++y) {
+        for (int x = 0; x < columns; ++x) {
+            if ((x + y) % 2 == 0) {
+                cairo_set_source_rgba(cairo_context, 0.25f, 0.25f, 0.25f, 1.0f);
+            } else {
+                cairo_set_source_rgba(cairo_context, 0.5f, 0.5f, 0.5f, 1.0f);
+            }
+
+            cairo_rectangle(
+                cairo_context,
+                (float) (x * cell_size), (float) (y * cell_size),
+                (float) cell_size, (float) cell_size);
+            cairo_fill(cairo_context);
+        }
+    }
 
     return Val_unit;
 }

@@ -11,6 +11,7 @@ external fill_rect: float -> float -> float -> float -> unit = "console_fill_rec
 external fill_circle: float -> float -> float -> unit = "console_fill_circle"
 external draw_text: float -> float -> float -> string -> unit = "console_draw_text"
 external clear: float -> float -> float -> float -> unit = "console_clear"
+external fill_chess_pattern: unit -> unit = "fill_chess_pattern"
 
 external start_cairo_preview: unit -> unit = "start_cairo_preview"
 external stop_cairo_preview: unit -> unit = "stop_cairo_preview"
@@ -36,7 +37,7 @@ let rec render_with_context (c: Color.t) (p: Picture.t): unit =
 
 let renderPicture (p: Picture.t): unit =
   start_cairo_preview ();
-  clear 0.0 0.0 0.0 0.0;
+  fill_chess_pattern ();
   render_with_context Color.black p;
   stop_cairo_preview ()
 
