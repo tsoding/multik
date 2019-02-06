@@ -1,5 +1,7 @@
 open Picture
 
+(* TODO: The project mixes up camel case and snake case for function names *)
+
 external init: int -> int -> unit = "console_init"
 external free: unit -> unit = "console_free"
 external should_quit: unit -> bool = "console_should_quit"
@@ -9,29 +11,37 @@ external fill_rect: float -> float -> float -> float -> unit = "console_fill_rec
 external fill_circle: float -> float -> float -> unit = "console_fill_circle"
 external draw_text: float -> float -> string -> unit = "console_draw_text"
 external clear: float -> float -> float -> unit = "console_clear"
+
 external start_cairo_preview: unit -> unit = "start_cairo_preview"
 external stop_cairo_preview: unit -> unit = "stop_cairo_preview"
 
-let renderPicture (p: Picture.t): unit =
-  let rec render_with_context (c: Color.t) (p: Picture.t): unit =
-    let (r, g, b) = c in
-    set_fill_color r g b;
-    match p with
-    | Nothing -> ()
-    | Rect (x, y, w, h) ->
-       fill_rect x y w h
-    | Compose ps ->
-       List.iter (render_with_context c) ps
-    | Color (c1, p1) ->
-       render_with_context c1 p1
-    | Circle ((x, y), radius) ->
-       fill_circle x y radius
-    | Text ((x, y), text) ->
-       draw_text x y text
-  in start_cairo_preview ();
-     clear 0.0 0.0 0.0;
-     render_with_context Color.black p;
-     stop_cairo_preview ()
+external start_cairo_render: int -> int -> unit = "start_cairo_render"
+external stop_cairo_render: string -> unit = "stop_cairo_render"
 
-(* TODO(#30): Console.savePicture is not implemented *)
-let savePicture (resolution: int * int) (filename: string) (picture: Picture.t) : unit = ()
+let rec render_with_context (c: Color.t) (p: Picture.t): unit =
+  let (r, g, b) = c in
+  set_fill_color r g b;
+  match p with
+  | Nothing -> ()
+  | Rect (x, y, w, h) ->
+     fill_rect x y w h
+  | Compose ps ->
+     List.iter (render_with_context c) ps
+  | Color (c1, p1) ->
+     render_with_context c1 p1
+  | Circle ((x, y), radius) ->
+     fill_circle x y radius
+  | Text ((x, y), text) ->
+     draw_text x y text
+
+let renderPicture (p: Picture.t): unit =
+  start_cairo_preview ();
+  clear 0.0 0.0 0.0;
+  render_with_context Color.black p;
+  stop_cairo_preview ()
+
+let savePicture (width, height: int * int) (filename: string) (picture: Picture.t) : unit =
+  start_cairo_render width height;
+  clear 0.0 0.0 0.0;
+  render_with_context Color.black picture;
+  stop_cairo_render filename

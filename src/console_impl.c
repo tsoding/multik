@@ -209,6 +209,13 @@ console_fill_circle(value x, value y, value r)
 }
 
 CAMLprim value
+start_cairo_render(value width, value height)
+{
+    /* TODO: start_cairo_render is not implemented */
+    return Val_unit;
+}
+
+CAMLprim value
 start_cairo_preview(value unit)
 {
     if (texture == NULL) {
@@ -237,6 +244,13 @@ start_cairo_preview(value unit)
         viewport.w, viewport.h, pitch);
     cairo_context = cairo_create(cairo_surface);
 
+    return Val_unit;
+}
+
+CAMLprim value
+stop_cairo_render(value filename)
+{
+    /* TODO: stop_cairo_render is not implemented */
     return Val_unit;
 }
 
