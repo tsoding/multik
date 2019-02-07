@@ -9,6 +9,7 @@ with import <nixpkgs> {}; {
                         cairo
                         SDL2
                         ffmpeg-full
+                        ncurses
                       ];
     };
 }
