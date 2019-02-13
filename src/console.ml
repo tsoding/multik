@@ -5,6 +5,7 @@ open Picture
 external init: int -> int -> unit = "console_init"
 external free: unit -> unit = "console_free"
 external should_quit: unit -> bool = "console_should_quit"
+external should_reload: unit -> bool = "console_should_reload"
 external present: unit -> unit = "console_present"
 external set_fill_color: float -> float -> float -> float -> unit = "console_set_fill_color"
 external fill_rect: float -> float -> float -> float -> unit = "console_fill_rect"

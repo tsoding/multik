@@ -10,8 +10,8 @@ install:
   - opam install -y ocamlfind
 script:
   - eval `opam config env`
-  - make multik.opt
   - make multik
+  - make src/sample.cmo
 env:
   - OCAML_VERSION=4.04
 os:
