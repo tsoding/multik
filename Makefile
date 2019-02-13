@@ -1,4 +1,4 @@
-MLS=src/flow.ml src/color.ml src/picture.ml src/console.ml src/multik.ml src/sample.ml src/main.ml
+MLS=src/flow.ml src/color.ml src/picture.ml src/console.ml src/animation.ml src/multik.ml src/sample.ml src/main.ml
 CFLAGS=-Wall -Werror $(shell pkg-config --cflags sdl2 cairo)
 LIBS=$(shell pkg-config --libs sdl2 cairo)
 
@@ -17,3 +17,6 @@ multik: src/console_impl.o $(MLS)
 src/console_impl.o: src/console_impl.c
 	ocamlc -c -ccopt "$(CFLAGS)" src/console_impl.c -cclib "$(LIBS)"
 	cp console_impl.o src/
+
+src/sample.cma: src/sample.cmo src/picture.cmo src/color.cmo 
+	ocamlc -a -o src/sample.cma src/sample.cmo src/picture.cmo src/color.cmo
