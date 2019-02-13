@@ -50,7 +50,7 @@ module Sample : Animation =
       init
       |> Flow.iterate (update (1.0 /. float_of_int fps))
       |> Flow.map render
-      (* |> Flow.take 100 *)
+      |> Flow.take 100
   end
 
 let () =

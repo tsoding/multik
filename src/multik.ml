@@ -22,30 +22,32 @@ let render (dirpath: string): unit =
 
 let preview () =
   let rec loop (delta_time: float) (frames: Picture.t Flow.t): unit =
-    let frame_begin = Sys.time () in
     if not (Console.should_quit ())
-    then
-      match Flow.uncons frames with
-      | Some (frame, rest_frames) ->
-         begin
-           frame |> Console.renderPicture;
-           Console.present ();
-           let frame_work = Sys.time () -. frame_begin in
-           begin
-             (*
-              * TODO(#23): The animation is replayed slower than it supposed to be
-              *   1. Create animation with 100 frames and 30 fps
-              *   2. Expected animation should last ~3 seconds
-              *   3. Observed animation lasts >6 seconds
-              *)
-             (delta_time -. frame_work) |> max 0.0 |> Thread.delay;
-             loop delta_time rest_frames
-           end
-         end
-      | None -> [empty_animation_frame]
-                |> Flow.of_list
-                |> Flow.cycle
-                |> loop delta_time
+    then (if (Console.should_reload ())
+          then (print_endline "reloading";
+                Dynlink.loadfile("./src/sample.cmo");
+                let module Reload = (val getCurrentAnimation () : Animation) in
+                if Flow.is_nil Reload.frames
+                then loop delta_time Flow.nil
+                else Reload.frames |> Flow.cycle |> loop delta_time)
+          else (let frame_begin = Sys.time () in
+                match Flow.uncons frames with
+                | Some (frame, rest_frames) ->
+                   frame |> Console.renderPicture;
+                   Console.present ();
+                   let frame_work = Sys.time () -. frame_begin in
+                   (*
+                    * TODO(#23): The animation is replayed slower than it supposed to be
+                    *   1. Create animation with 100 frames and 30 fps
+                    *   2. Expected animation should last ~3 seconds
+                    *   3. Observed animation lasts >6 seconds
+                    *)
+                   (delta_time -. frame_work) |> max 0.0 |> Thread.delay;
+                   loop delta_time rest_frames
+                | None -> [empty_animation_frame]
+                          |> Flow.of_list
+                          |> Flow.cycle
+                          |> loop delta_time))
     else ()
   in
     let module A = (val getCurrentAnimation () : Animation) in

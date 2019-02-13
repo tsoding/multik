@@ -15,6 +15,8 @@ static SDL_Texture *texture = NULL;
 static cairo_surface_t *cairo_surface = NULL;
 static cairo_t *cairo_context = NULL;
 
+static int reload = 0;
+
 CAMLprim value
 console_init(value width, value height)
 {
@@ -81,6 +83,14 @@ fail:
 }
 
 CAMLprim value
+console_should_reload(value unit)
+{
+    int result = reload;
+    reload = 0;
+    return Val_bool(result);
+}
+
+CAMLprim value
 console_should_quit(value unit)
 {
     SDL_Event event;
@@ -109,6 +119,10 @@ console_should_quit(value unit)
                     event.window.data2);
                 break;
             }
+            break;
+
+        case SDL_KEYDOWN:
+            reload = 1;
             break;
         }
     }
