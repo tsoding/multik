@@ -1,3 +1,4 @@
 let () =
-  let module Animation = Multik.Make(Sample) in
-  Animation.run ()
+  Dynlink.loadfile("./src/sample.cmo");
+  Multik.run ();
+  print_endline "done"
