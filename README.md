@@ -7,5 +7,5 @@ Animation Framework
 ```console
 $ nix-shell        # For NixOS
 $ make
-$ ./multik.opt
+$ ./multik
 ```
