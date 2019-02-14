@@ -1,4 +1,4 @@
-MLS=src/flow.ml src/color.ml src/picture.ml src/console.ml src/animation.ml src/multik.ml src/main.ml
+MLS=src/flow.ml src/color.ml src/picture.ml src/console.ml src/animation.ml src/main.ml
 CFLAGS=-Wall -Werror $(shell pkg-config --cflags sdl2 cairo)
 LIBS=$(shell pkg-config --libs sdl2 cairo)
 
