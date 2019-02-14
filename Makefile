@@ -13,7 +13,7 @@ multik: src/console_impl.o $(MLS)
 
 src/console_impl.o: src/console_impl.c
 	ocamlc -c -ccopt "$(CFLAGS)" src/console_impl.c -cclib "$(LIBS)"
-	cp console_impl.o src/
+	mv console_impl.o src/
 
 src/sample.cmo: src/sample.ml
 	ocamlc -I ./src/ -c src/color.ml src/picture.ml src/animation.ml src/sample.ml
