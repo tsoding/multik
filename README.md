@@ -7,5 +7,6 @@ Animation Framework
 ```console
 $ nix-shell        # For NixOS
 $ make
-$ ./multik
+$ ./multik preview src/sample.cmo
+$ ./multik render src/sample.cmo out/
 ```
