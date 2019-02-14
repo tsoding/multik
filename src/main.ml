@@ -8,7 +8,8 @@ let empty_animation_frame =
     )
 
 (* TODO(#40): if the animation is infinite the rendering will be infinite *)
-let render (dirpath: string): unit =
+let render (animation_path: string) (dirpath: string): unit =
+  Dynlink.loadfile(animation_path);
   let module A = (val getCurrentAnimation () : Animation) in
   if not (Sys.file_exists dirpath) then Unix.mkdir dirpath 0o755;
   A.frames
@@ -20,12 +21,12 @@ let render (dirpath: string): unit =
                       ^ ".png"
        in Console.savePicture A.resolution filename picture)
 
-let preview () =
+let preview (animation_path: string) =
   let rec loop (delta_time: float) (frames: Picture.t Flow.t): unit =
     if not (Console.should_quit ())
     then (if (Console.should_reload ())
           then (print_endline "reloading";
-                Dynlink.loadfile("./src/sample.cmo");
+                Dynlink.loadfile(animation_path);
                 let module Reload = (val getCurrentAnimation () : Animation) in
                 if Flow.is_nil Reload.frames
                 then loop delta_time Flow.nil
@@ -50,8 +51,7 @@ let preview () =
                           |> loop delta_time))
     else ()
   in
-    (* TODO(#45): animation file path is hardcoded *)
-    Dynlink.loadfile("./src/sample.cmo");
+    Dynlink.loadfile(animation_path);
     let module A = (val getCurrentAnimation () : Animation) in
     let (width, height) = A.resolution in
     let delta_time = 1.0 /. (float_of_int A.fps) in
@@ -63,11 +63,13 @@ let preview () =
 
 let () =
   match Sys.argv |> Array.to_list with
-  | _ :: "preview" :: _ ->
-     preview ()
-  | _ :: "render" :: dirpath :: _ ->
-     render dirpath
+  | _ :: "preview" :: animation_path :: _ ->
+     preview animation_path
+  | name :: "preview" :: _ ->
+     Printf.fprintf stderr "Using %s preview <animation-path>" name
+  | _ :: "render" :: animation_path :: dirpath :: _ ->
+     render animation_path dirpath
   | name :: "render" :: _ ->
-     Printf.fprintf stderr "Using: %s render <dirpath>" name
+     Printf.fprintf stderr "Using: %s render <animation-path> <dirpath>" name
   | name :: _ -> Printf.fprintf stderr "Using: %s <preview|render>" name
   | _ -> Printf.fprintf stderr "Using: <program> <preview|render>"
