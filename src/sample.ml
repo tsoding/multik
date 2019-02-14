@@ -1,5 +1,10 @@
 open Animation
 
+(*
+ * TODO(#47): it would be better to separate sample from the engine codebase
+ *   Let's create something like sample/ folder with different samples to test out the engine.
+ *)
+
 module Sample : Animation =
   struct
     type t =
