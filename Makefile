@@ -2,6 +2,8 @@ MLS=src/flow.ml src/color.ml src/picture.ml src/console.ml src/animation.ml src/
 CFLAGS=-Wall -Werror $(shell pkg-config --cflags sdl2 cairo)
 LIBS=$(shell pkg-config --libs sdl2 cairo)
 
+all: multik src/sample.cmo
+
 multik: src/console_impl.o $(MLS)
 	ocamlfind ocamlc -linkpkg -package threads,dynlink -thread \
 		-custom -I ./src/ \
