@@ -1,7 +1,7 @@
 open Animation
 
 (*
- * TODO: it would be better to separate sample from the engine codebase
+ * TODO(#47): it would be better to separate sample from the engine codebase
  *   Let's create something like sample/ folder with different samples to test out the engine.
  *)
 
