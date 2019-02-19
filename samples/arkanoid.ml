@@ -1,11 +1,6 @@
 open Animation
 
-(*
- * TODO(#47): it would be better to separate sample from the engine codebase
- *   Let's create something like sample/ folder with different samples to test out the engine.
- *)
-
-module Sample : Animation =
+module Arkanoid : Animation =
   struct
     type t =
       {
@@ -59,4 +54,4 @@ module Sample : Animation =
   end
 
 let () =
-  currentAnimation := Some (module Sample : Animation)
+  currentAnimation := Some (module Arkanoid : Animation)
