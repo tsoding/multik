@@ -5,7 +5,7 @@ module type T =
     val resolution : int * int
   end
 
-(* TODO: there is no default "No Animation Loaded" animation *)
+(* TODO(#55): there is no default "No Animation Loaded" animation *)
 let current : (module T) option ref = ref None
 
 let get_current () =
