@@ -1,6 +1,4 @@
-open Animation
-
-module Arkanoid : Animation =
+module Arkanoid : Animation.T =
   struct
     type t =
       {
@@ -16,14 +14,16 @@ module Arkanoid : Animation =
         direction = (1000.0, 1000.0);
       }
 
+    let resolution = (1366, 768)
+
     let render state =
       let (x, y) = state.position in
-      Picture.Color
-        ( Color.blue
-        , Picture.Circle ((x, y), radius)
-        )
-
-    let resolution = (800, 600)
+      let (w, h) = resolution in
+      [ Picture.rect 0.0 0.0 (float_of_int w) (float_of_int h)
+        |> (Color.rgb 0.1 0.1 0.1 |> Picture.color)
+      ; Picture.circle x y radius
+        |> (Color.rgb 0.1 0.1 0.8 |> Picture.color)
+      ] |> Picture.compose
 
     let wall_collision (state: t): t =
       let (x, y) = state.position in
@@ -53,5 +53,4 @@ module Arkanoid : Animation =
       |> Flow.take 100
   end
 
-let () =
-  currentAnimation := Some (module Arkanoid : Animation)
+let () = Animation.load (module Arkanoid : Animation.T)
