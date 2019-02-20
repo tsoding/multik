@@ -24,7 +24,7 @@ let render (animation_path: string) (dirpath: string): unit =
 let preview (animation_path: string) =
   let rec loop (delta_time: float) (frames: Picture.t Flow.t): unit =
     if not (Console.should_quit ())
-    then (if (Console.should_reload ())
+    then (if (Watcher.is_file_modified ())
           then (print_endline "reloading";
                 Dynlink.loadfile(animation_path);
                 let module Reload = (val getCurrentAnimation () : Animation) in
@@ -56,9 +56,11 @@ let preview (animation_path: string) =
     let (width, height) = A.resolution in
     let delta_time = 1.0 /. (float_of_int A.fps) in
     Console.init width height;
+    Watcher.init animation_path;
     if Flow.is_nil A.frames
     then loop delta_time Flow.nil
     else A.frames |> Flow.cycle |> loop delta_time;
+    Watcher.free ();
     Console.free ()
 
 let () =
