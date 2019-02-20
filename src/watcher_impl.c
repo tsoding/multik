@@ -37,6 +37,11 @@ CAMLprim value
 watcher_is_file_modified(value unit)
 {
     ssize_t numRead = read(inotifyFd, buf, BUF_LEN);
+
+    if (errno != EAGAIN) {
+        caml_failwith(strerror(errno));
+    }
+
     return Val_bool(numRead > 0);
 }
 
