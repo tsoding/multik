@@ -14,14 +14,15 @@ module Arkanoid : Animation.T =
         direction = (1000.0, 1000.0);
       }
 
-    let resolution = (800, 600)
+    let resolution = (1366, 768)
 
     let render state =
       let (x, y) = state.position in
       let (w, h) = resolution in
       [ Picture.rect 0.0 0.0 (float_of_int w) (float_of_int h)
-        |> Picture.color Color.black
-      ; Picture.circle x y radius |> Picture.color Color.blue
+        |> (Color.rgb 0.1 0.1 0.1 |> Picture.color)
+      ; Picture.circle x y radius
+        |> (Color.rgb 0.1 0.1 0.8 |> Picture.color)
       ] |> Picture.compose
 
     let wall_collision (state: t): t =
@@ -49,7 +50,7 @@ module Arkanoid : Animation.T =
       init
       |> Flow.iterate (update (1.0 /. float_of_int fps))
       |> Flow.map render
-      |> Flow.take 100
+      (* |> Flow.take 100 *)
   end
 
 let () = Animation.load (module Arkanoid : Animation.T)
