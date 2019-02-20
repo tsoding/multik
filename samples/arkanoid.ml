@@ -1,6 +1,4 @@
-open Animation
-
-module Arkanoid : Animation =
+module Arkanoid : Animation.T =
   struct
     type t =
       {
@@ -54,4 +52,4 @@ module Arkanoid : Animation =
   end
 
 let () =
-  currentAnimation := Some (module Arkanoid : Animation)
+  Animation.current := Some (module Arkanoid : Animation.T)

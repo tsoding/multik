@@ -1,5 +1,3 @@
-open Animation
-
 let empty_animation_frame =
   Picture.Color
     ( Color.red
@@ -10,7 +8,7 @@ let empty_animation_frame =
 (* TODO(#40): if the animation is infinite the rendering will be infinite *)
 let render (animation_path: string) (dirpath: string): unit =
   Dynlink.loadfile(animation_path);
-  let module A = (val getCurrentAnimation () : Animation) in
+  let module A = (val Animation.get_current () : Animation.T) in
   if not (Sys.file_exists dirpath) then Unix.mkdir dirpath 0o755;
   A.frames
   |> Flow.zip (Flow.from 0)
@@ -27,7 +25,7 @@ let preview (animation_path: string) =
     then (if (Watcher.is_file_modified ())
           then (print_endline "reloading";
                 Dynlink.loadfile(animation_path);
-                let module Reload = (val getCurrentAnimation () : Animation) in
+                let module Reload = (val Animation.get_current () : Animation.T) in
                 if Flow.is_nil Reload.frames
                 then loop delta_time Flow.nil
                 else Reload.frames |> Flow.cycle |> loop delta_time)
@@ -52,7 +50,7 @@ let preview (animation_path: string) =
     else ()
   in
     Dynlink.loadfile(animation_path);
-    let module A = (val getCurrentAnimation () : Animation) in
+    let module A = (val Animation.get_current () : Animation.T) in
     let (width, height) = A.resolution in
     let delta_time = 1.0 /. (float_of_int A.fps) in
     Console.init width height;
