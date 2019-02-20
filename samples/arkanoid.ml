@@ -51,5 +51,4 @@ module Arkanoid : Animation.T =
       |> Flow.take 100
   end
 
-let () =
-  Animation.current := Some (module Arkanoid : Animation.T)
+let () = Animation.load (module Arkanoid : Animation.T)

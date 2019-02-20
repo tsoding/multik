@@ -6,7 +6,11 @@ module type T =
   end
 
 let current : (module T) option ref = ref None
+
 let get_current () =
   match !current with
   | Some animation -> animation
   | None -> failwith "No animation loaded"
+
+let load (module A: T): unit =
+  current := Some (module A: T)
