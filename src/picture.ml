@@ -3,4 +3,4 @@ type t = Nothing
        | Rect of float * float * float * float
        | Circle of (float * float) * float
        | Compose of t list
-       | Text of (float * float) * float * string
+       | Text of (float * float) * Font.t * string

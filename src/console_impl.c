@@ -156,15 +156,14 @@ console_fill_rect(value x, value y, value w, value h)
 }
 
 CAMLprim value
-console_draw_text(value x, value y, value size, value text)
+console_draw_text(value x, value y, value font_name, value size, value text)
 {
     if (cairo_context == NULL) {
         caml_failwith("Cairo Context is not initialized");
     }
 
-    // TODO(#28): font of the text is hardcoded
     cairo_select_font_face(
-        cairo_context, "Sans",
+        cairo_context, String_val(font_name),
         CAIRO_FONT_SLANT_NORMAL,
         CAIRO_FONT_WEIGHT_BOLD);
     cairo_set_font_size(cairo_context, Double_val(size));

@@ -4,7 +4,7 @@ let empty_animation_frame =
   Picture.Color
     ( Color.red
     (* TODO(#22): "No Animation" sign is not rendered at the center of the screen *)
-    , Picture.Text ((0.0, 90.0), 50.0, "No Animation")
+    , Picture.Text ((0.0, 90.0), Font.make "Sans" 50.0, "No Animation")
     )
 
 (* TODO(#40): if the animation is infinite the rendering will be infinite *)
