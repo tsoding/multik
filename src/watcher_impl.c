@@ -19,6 +19,8 @@ static char buf[BUF_LEN] __attribute__ ((aligned(8)));
 CAMLprim value
 watcher_init(value filename)
 {
+    char exception[256];
+
     inotifyFd = inotify_init1(IN_NONBLOCK);
     if (inotifyFd == -1) {
         caml_failwith("Could not initialize inotify system");
@@ -26,8 +28,8 @@ watcher_init(value filename)
 
     wd = inotify_add_watch(inotifyFd, String_val(filename), IN_CLOSE_WRITE);
     if (wd == -1) {
-        // TODO: print the filename we failed to add the watcher too
-        caml_failwith("Could not add watcher for a file");
+        snprintf(exception, 256, "Could not add watcher for a file %s", String_val(filename));
+        caml_failwith(exception);
     }
 
     return Val_unit;
