@@ -14,14 +14,15 @@ module Arkanoid : Animation.T =
         direction = (1000.0, 1000.0);
       }
 
+    let resolution = (800, 600)
+
     let render state =
       let (x, y) = state.position in
-      Picture.Color
-        ( Color.blue
-        , Picture.Circle ((x, y), radius)
-        )
-
-    let resolution = (800, 600)
+      let (w, h) = resolution in
+      [ Picture.rect 0.0 0.0 (float_of_int w) (float_of_int h)
+        |> Picture.color Color.black
+      ; Picture.circle x y radius |> Picture.color Color.blue
+      ] |> Picture.compose
 
     let wall_collision (state: t): t =
       let (x, y) = state.position in
