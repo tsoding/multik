@@ -50,6 +50,8 @@ watcher_is_file_modified(value unit)
 CAMLprim value
 watcher_free(value unit)
 {
-    // TODO: watcher_free is not implemented 4HEad
+    // TODO(#52): watcher_free is not implemented
+    //   It is not even clear what we can do here, because OS will
+    //   probably close everything for us when the application exits.
     return Val_unit;
 }
