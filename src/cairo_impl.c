@@ -6,19 +6,21 @@
 #include <caml/alloc.h>
 #include <caml/custom.h>
 #include <caml/memory.h>
+
+#include <SDL2/SDL.h>
+
 #include <cairo.h>
 
 struct Context
 {
     cairo_surface_t *surface;
     cairo_t *context;
+    SDL_Texture *texture;
 };
 
 CAMLprim value
 multik_cairo_make(value width, value height)
 {
-    printf("Creating context %d by %d\n", Int_val(width), Int_val(height));
-
     const char *error_message = "";
 
     struct Context *context = malloc(sizeof(struct Context));
@@ -62,9 +64,77 @@ fail:
 }
 
 CAMLprim value
-multik_cairo_make_from_texture(value texture)
+multik_cairo_make_from_texture(value texture_value)
 {
-    // TODO: multik_cairo_make_from_texture is not implemented
+    const char *error_message = NULL;
+
+    struct Context *context = malloc(sizeof(struct Context));
+    if (context == NULL) {
+        error_message = "Could not allocate memory. Download more RAM.";
+        goto fail;
+    }
+
+    SDL_Texture *texture = (SDL_Texture*) texture_value;
+
+    if (texture == NULL) {
+        error_message = "Texture is NULL!";
+        goto fail;
+    }
+
+    int w, h;
+
+    if (SDL_QueryTexture(texture, NULL, NULL, &w, &h) < 0) {
+        error_message = SDL_GetError();
+        goto fail;
+    }
+
+    void *pixels;
+    int pitch;
+
+    if (SDL_LockTexture(texture, NULL, &pixels, &pitch) < 0) {
+        error_message = SDL_GetError();
+        goto fail;
+    }
+
+    context->surface = cairo_image_surface_create_for_data(
+        pixels,
+        CAIRO_FORMAT_ARGB32,
+        w, h, pitch);
+    if (context->surface == NULL) {
+        error_message = "Could not allocate Cairo surface";
+        goto fail;
+    }
+
+    context->context = cairo_create(context->surface);
+    if (context->context == NULL) {
+        error_message = "Could not allocate Cairo context";
+        goto fail;
+    }
+
+    context->texture = texture;
+
+    return (value) context;
+
+fail:
+
+    if (context != NULL) {
+        if (context->context) {
+            cairo_destroy(context->context);
+        }
+
+        if (context->surface) {
+            cairo_surface_destroy(context->surface);
+
+            if (texture) {
+                SDL_UnlockTexture(texture);
+            }
+        }
+
+        free(context);
+    }
+
+    caml_failwith(error_message);
+
     return (value) NULL;
 }
 
@@ -77,16 +147,16 @@ multik_cairo_free(value context_value)
         caml_failwith("Context is NULL");
     }
 
-    printf("Destroy context %d by %d\n",
-           cairo_image_surface_get_width(context->surface),
-           cairo_image_surface_get_height(context->surface));
-
     if (context->context) {
         cairo_destroy(context->context);
     }
 
     if (context->surface) {
         cairo_surface_destroy(context->surface);
+    }
+
+    if (context->texture) {
+        SDL_UnlockTexture(context->texture);
     }
 
     free(context);

@@ -12,11 +12,6 @@ static SDL_Renderer *renderer = NULL;
 //   And draw directly on renderer.
 static SDL_Texture *texture = NULL;
 
-static cairo_surface_t *cairo_surface = NULL;
-static cairo_t *cairo_context = NULL;
-
-static int reload = 0;
-
 CAMLprim value
 console_init(value width, value height)
 {
@@ -83,14 +78,6 @@ fail:
 }
 
 CAMLprim value
-console_should_reload(value unit)
-{
-    int result = reload;
-    reload = 0;
-    return Val_bool(result);
-}
-
-CAMLprim value
 console_should_quit(value unit)
 {
     SDL_Event event;
@@ -120,10 +107,6 @@ console_should_quit(value unit)
                 break;
             }
             break;
-
-        case SDL_KEYDOWN:
-            reload = 1;
-            break;
         }
     }
 
@@ -131,108 +114,10 @@ console_should_quit(value unit)
 }
 
 CAMLprim value
-console_set_fill_color(value r, value g, value b, value a)
-{
-    if (cairo_context == NULL) {
-        caml_failwith("Cairo Context is not initialized");
-    }
-
-    cairo_set_source_rgba(cairo_context, Double_val(r), Double_val(g), Double_val(b), Double_val(a));
-
-    return Val_unit;
-}
-
-CAMLprim value
-console_fill_rect(value x, value y, value w, value h)
-{
-    if (cairo_context == NULL) {
-        caml_failwith("Cairo Context is not initialized");
-    }
-
-    cairo_rectangle(cairo_context, Double_val(x), Double_val(y), Double_val(w), Double_val(h));
-    cairo_fill(cairo_context);
-
-    return Val_unit;
-}
-
-CAMLprim value
-console_draw_text(value x, value y, value font_name, value size, value text)
-{
-    if (cairo_context == NULL) {
-        caml_failwith("Cairo Context is not initialized");
-    }
-
-    cairo_select_font_face(
-        cairo_context, String_val(font_name),
-        CAIRO_FONT_SLANT_NORMAL,
-        CAIRO_FONT_WEIGHT_BOLD);
-    cairo_set_font_size(cairo_context, Double_val(size));
-    cairo_move_to(cairo_context, Double_val(x), Double_val(y));
-    cairo_text_path(cairo_context, String_val(text));
-    cairo_fill(cairo_context);
-
-    return Val_unit;
-}
-
-CAMLprim value
-console_clear(value r, value g, value b, value a)
-{
-    if (cairo_context == NULL) {
-        caml_failwith("Cairo Context is not initialized");
-    }
-
-    cairo_set_source_rgba(cairo_context, Double_val(r), Double_val(g), Double_val(b), Double_val(a));
-    cairo_paint(cairo_context);
-
-    return Val_unit;
-}
-
-CAMLprim value
-fill_chess_pattern(value unit)
-{
-    if (renderer == NULL) {
-        caml_failwith("SDL Renderer is not initialized");
-    }
-
-    if (cairo_context == NULL) {
-        caml_failwith("Cairo Context is not initialized");
-    }
-
-    SDL_Rect viewport;
-    SDL_RenderGetViewport(renderer, &viewport);
-
-    const int cell_size = 12;
-    const int rows = (viewport.h + cell_size) / cell_size;
-    const int columns = (viewport.w + cell_size) / cell_size;
-
-    for (int y = 0; y < rows; ++y) {
-        for (int x = 0; x < columns; ++x) {
-            if ((x + y) % 2 == 0) {
-                cairo_set_source_rgba(cairo_context, 0.25f, 0.25f, 0.25f, 1.0f);
-            } else {
-                cairo_set_source_rgba(cairo_context, 0.5f, 0.5f, 0.5f, 1.0f);
-            }
-
-            cairo_rectangle(
-                cairo_context,
-                (float) (x * cell_size), (float) (y * cell_size),
-                (float) cell_size, (float) cell_size);
-            cairo_fill(cairo_context);
-        }
-    }
-
-    return Val_unit;
-}
-
-CAMLprim value
 console_present(value unit)
 {
     if (renderer == NULL) {
         caml_failwith("Renderer is not initialized");
-    }
-
-    if (cairo_context != NULL) {
-        caml_failwith("Rendering inside of Cairo context");
     }
 
     SDL_Rect view_port;
@@ -270,102 +155,7 @@ console_free(value unit)
 }
 
 CAMLprim value
-console_fill_circle(value x, value y, value r)
+console_texture(value unit)
 {
-    if (cairo_context == NULL) {
-        caml_failwith("Cairo Context is not initialized");
-    }
-
-    cairo_arc(cairo_context,
-              Double_val(x), Double_val(y), Double_val(r),
-              0.0, 2 * M_PI);
-    cairo_fill(cairo_context);
-
-    return Val_unit;
-}
-
-CAMLprim value
-start_cairo_render(value width, value height)
-{
-    if (cairo_surface != NULL) {
-        fprintf(stderr, "[WARN] Cairo surface double initialization\n");
-        return Val_unit;
-    }
-
-    cairo_surface = cairo_image_surface_create(
-        CAIRO_FORMAT_ARGB32, Int_val(width), Int_val(height));
-    cairo_context = cairo_create(cairo_surface);
-
-    return Val_unit;
-}
-
-CAMLprim value
-start_cairo_preview(value unit)
-{
-    if (texture == NULL) {
-        caml_failwith("Texture is not initialized");
-    }
-
-    if (renderer == NULL) {
-        caml_failwith("Renderer is not initialized");
-    }
-
-    if (cairo_surface != NULL) {
-        fprintf(stderr, "[WARN] Cairo surface double initialization\n");
-        return Val_unit;
-    }
-
-    SDL_Rect viewport;
-    SDL_RenderGetViewport(renderer, &viewport);
-
-    void *pixels;
-    int pitch;
-
-    SDL_LockTexture(texture, NULL, &pixels, &pitch);
-    cairo_surface = cairo_image_surface_create_for_data(
-        pixels,
-        CAIRO_FORMAT_ARGB32,
-        viewport.w, viewport.h, pitch);
-    cairo_context = cairo_create(cairo_surface);
-
-    return Val_unit;
-}
-
-CAMLprim value
-stop_cairo_render(value filename)
-{
-    if (cairo_surface == NULL) {
-        caml_failwith("Cairo Surface is not initialized");
-    }
-
-    cairo_status_t err = cairo_surface_write_to_png(cairo_surface, String_val(filename));
-    if (err != 0) {
-        caml_failwith(cairo_status_to_string(err));
-    }
-
-    cairo_destroy(cairo_context);
-    cairo_context = NULL;
-
-    cairo_surface_destroy(cairo_surface);
-    cairo_surface = NULL;
-
-    return Val_unit;
-}
-
-CAMLprim value
-stop_cairo_preview(value unit)
-{
-    if (cairo_context != NULL) {
-        cairo_destroy(cairo_context);
-        cairo_context = NULL;
-    }
-
-    if (cairo_surface != NULL) {
-        cairo_surface_destroy(cairo_surface);
-        cairo_surface = NULL;
-    }
-
-    SDL_UnlockTexture(texture);
-
-    return Val_unit;
+    return (value) texture;
 }
