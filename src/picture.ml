@@ -4,6 +4,7 @@ type t = Nothing
        | Circle of (float * float) * float
        | Compose of t list
        | Text of (float * float) * Font.t * string
+       | SizeOf of t * (Rect.t -> t)
 
 let nothing = Nothing
 
@@ -21,3 +22,6 @@ let compose (ps: t list) =
 
 let text (x: float) (y: float) (font: Font.t) (text: string) =
   Text ((x, y), font, text)
+
+let sizeOf (p: t) (template: Rect.t -> t) =
+  SizeOf (p, template)

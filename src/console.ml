@@ -20,6 +20,9 @@ external stop_cairo_preview: unit -> unit = "stop_cairo_preview"
 external start_cairo_render: int -> int -> unit = "start_cairo_render"
 external stop_cairo_render: string -> unit = "stop_cairo_render"
 
+(* TODO: pictureBoundary *)
+let pictureBoundary (p: Picture.t): Rect.t = (0.0, 0.0, 0.0, 0.0)
+
 let rec render_with_context (c: Color.t) (p: Picture.t): unit =
   let (r, g, b, a) = c in
   set_fill_color r g b a;
@@ -35,6 +38,11 @@ let rec render_with_context (c: Color.t) (p: Picture.t): unit =
      fill_circle x y radius
   | Text ((x, y), font, text) ->
      draw_text x y font.name font.size text
+  | SizeOf (p, template) ->
+     p
+     |> pictureBoundary
+     |> template
+     |> render_with_context c
 
 let renderPicture (p: Picture.t): unit =
   start_cairo_preview ();

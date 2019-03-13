@@ -1,9 +1,16 @@
-let empty_animation_frame =
-  Picture.Color
-    ( Color.red
-    (* TODO(#22): "No Animation" sign is not rendered at the center of the screen *)
-    , Picture.Text ((0.0, 90.0), Font.make "Sans" 50.0, "No Animation")
-    )
+let empty_animation_frame (screen_width, screen_height) =
+  let label_at position =
+    Picture.Text (position, Font.make "Sans" 50.0, "No Animation")
+  in
+  Picture.sizeOf
+    (label_at (0.0, 0.0))
+    (fun (_, _, label_width, label_height) ->
+      Picture.Color
+        ( Color.red
+        , Picture.Text
+            (((float_of_int screen_width) *. 0.5 -. label_width *. 0.5,
+              (float_of_int screen_height) *. 0.5 -. label_height *. 0.5),
+             Font.make "Sans" 50.0, "No Animation")))
 
 (* TODO(#40): if the animation is infinite the rendering will be infinite *)
 let render (animation_path: string) (dirpath: string): unit =
@@ -20,15 +27,15 @@ let render (animation_path: string) (dirpath: string): unit =
        in Console.savePicture A.resolution filename picture)
 
 let preview (animation_path: string) =
-  let rec loop (delta_time: float) (frames: Picture.t Flow.t): unit =
+  let rec loop (resolution: int * int) (delta_time: float) (frames: Picture.t Flow.t): unit =
     if not (Console.should_quit ())
     then (if (Watcher.is_file_modified ())
           then (print_endline "reloading";
                 Dynlink.loadfile(animation_path);
                 let module Reload = (val Animation.get_current () : Animation.T) in
                 if Flow.is_nil Reload.frames
-                then loop delta_time Flow.nil
-                else Reload.frames |> Flow.cycle |> loop delta_time)
+                then loop Reload.resolution delta_time Flow.nil
+                else Reload.frames |> Flow.cycle |> loop Reload. resolution delta_time)
           else (let frame_begin = Sys.time () in
                 match Flow.uncons frames with
                 | Some (frame, rest_frames) ->
@@ -42,11 +49,11 @@ let preview (animation_path: string) =
                     *   3. Observed animation lasts >6 seconds
                     *)
                    (delta_time -. frame_work) |> max 0.0 |> Thread.delay;
-                   loop delta_time rest_frames
-                | None -> [empty_animation_frame]
+                   loop resolution delta_time rest_frames
+                | None -> [empty_animation_frame resolution]
                           |> Flow.of_list
                           |> Flow.cycle
-                          |> loop delta_time))
+                          |> loop resolution delta_time))
     else ()
   in
     Dynlink.loadfile(animation_path);
@@ -56,8 +63,8 @@ let preview (animation_path: string) =
     Console.init width height;
     Watcher.init animation_path;
     if Flow.is_nil A.frames
-    then loop delta_time Flow.nil
-    else A.frames |> Flow.cycle |> loop delta_time;
+    then loop A.resolution delta_time Flow.nil
+    else A.frames |> Flow.cycle |> loop A.resolution delta_time;
     Watcher.free ();
     Console.free ()
 
