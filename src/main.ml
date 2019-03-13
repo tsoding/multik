@@ -77,7 +77,7 @@ let () =
      Printf.fprintf stderr "Using %s preview <animation-path>" name
   | _ :: "render" :: animation_path :: dirpath :: _ ->
      render animation_path dirpath
-  (* TODO: `./multik render` segfaults *)
+  (* TODO(#58): `./multik render` segfaults *)
   | name :: "render" :: _ ->
      Printf.fprintf stderr "Using: %s render <animation-path> <dirpath>" name
   | name :: _ -> Printf.fprintf stderr "Using: %s <preview|render>" name
