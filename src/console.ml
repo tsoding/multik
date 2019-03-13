@@ -20,7 +20,7 @@ external stop_cairo_preview: unit -> unit = "stop_cairo_preview"
 external start_cairo_render: int -> int -> unit = "start_cairo_render"
 external stop_cairo_render: string -> unit = "stop_cairo_render"
 
-(* TODO: pictureBoundary *)
+(* TODO: pictureBoundary is not implemented *)
 let pictureBoundary (p: Picture.t): Rect.t = (0.0, 0.0, 0.0, 0.0)
 
 let rec render_with_context (c: Color.t) (p: Picture.t): unit =

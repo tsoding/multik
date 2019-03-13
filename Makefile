@@ -1,14 +1,15 @@
-CORE_MLS=src/flow.ml src/color.ml src/font.ml src/rect.ml src/picture.ml src/console.ml src/watcher.ml src/animation.ml
+CORE_MLS=src/flow.ml src/color.ml src/font.ml src/rect.ml src/picture.ml src/console.ml src/watcher.ml src/cairo.mli src/cairo.ml src/animation.ml
 CFLAGS=-Wall -Werror $(shell pkg-config --cflags sdl2 cairo)
 LIBS=$(shell pkg-config --libs sdl2 cairo)
+OBJS=src/cairo_impl.o src/console_impl.o src/watcher_impl.o
 
 all: multik samples/arkanoid.cmo samples/empty.cmo
 
-multik: src/console_impl.o src/watcher_impl.o $(CORE_MLS) src/main.ml
+multik: $(OBJS) $(CORE_MLS) src/main.ml
 	ocamlfind ocamlc -linkpkg -package threads,dynlink -thread \
 		-custom -I ./src/ \
 		-o multik \
-		src/console_impl.o src/watcher_impl.o \
+		$(OBJS) \
 		$(CORE_MLS) src/main.ml \
 		-ccopt "$(CFLAGS)" \
 		-cclib "$(LIBS)" \
@@ -20,6 +21,10 @@ src/console_impl.o: src/console_impl.c
 src/watcher_impl.o: src/watcher_impl.c
 	ocamlc -c -ccopt "$(CFLAGS)" src/watcher_impl.c -cclib "$(LIBS)"
 	mv watcher_impl.o src/
+
+src/cairo_impl.o: src/cairo_impl.c
+	ocamlc -c -ccopt "$(CFLAGS)" src/cairo_impl.c -cclib "$(LIBS)"
+	mv cairo_impl.o src/
 
 samples/arkanoid.cmo: $(CORE_MLS) samples/arkanoid.ml
 	ocamlc -I ./src/ -c $(CORE_MLS) samples/arkanoid.ml
