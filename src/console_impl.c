@@ -8,8 +8,6 @@
 
 static SDL_Window *window = NULL;
 static SDL_Renderer *renderer = NULL;
-// TODO(#25): Is it possible to get rid of the SDL_Texture in console_impl?
-//   And draw directly on renderer.
 static SDL_Texture *texture = NULL;
 
 CAMLprim value
