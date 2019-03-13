@@ -1,6 +1,7 @@
 type t
 
 external make : int -> int -> t = "multik_cairo_make"
+external make_from_texture: SdlTexture.t -> t = "multik_cairo_make_from_texture"
 external free : t -> unit = "multik_cairo_free"
 external set_fill_color : t -> float -> float -> float -> float -> unit = "multik_cairo_set_fill_color"
 external fill_rect : t -> float -> float -> float -> float -> unit = "multik_cairo_fill_rect"
@@ -11,6 +12,15 @@ external boundary_text: t -> float -> float -> string -> float -> string -> floa
 
 let with_context (width: int) (height: int) (block: t -> 'a): 'a =
   let context = make width height in
+  try
+    let value = block context in
+    free context;
+    value
+  with e -> free context;
+            raise e
+
+let with_texture (texture: SdlTexture.t) (block: t -> 'a): 'a =
+  let context = make_from_texture texture in
   try
     let value = block context in
     free context;

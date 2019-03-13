@@ -62,6 +62,13 @@ fail:
 }
 
 CAMLprim value
+multik_cairo_make_from_texture(value texture)
+{
+    // TODO: multik_cairo_make_from_texture is not implemented
+    return (value) NULL;
+}
+
+CAMLprim value
 multik_cairo_free(value context_value)
 {
     struct Context *context = (struct Context *) context_value;
