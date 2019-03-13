@@ -1,7 +1,7 @@
 open Picture
 
 (* TODO(#35): The project mixes up camel case and snake case for function names *)
-(* TODO: chess pattern is broken *)
+(* TODO(#57): chess pattern is broken *)
 
 external init: int -> int -> unit = "console_init"
 external free: unit -> unit = "console_free"
