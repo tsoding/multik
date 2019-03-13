@@ -2,7 +2,7 @@ CORE_MLS=src/flow.ml src/color.ml src/font.ml src/picture.ml src/console.ml src/
 CFLAGS=-Wall -Werror $(shell pkg-config --cflags sdl2 cairo)
 LIBS=$(shell pkg-config --libs sdl2 cairo)
 
-all: multik samples/arkanoid.cmo
+all: multik samples/arkanoid.cmo samples/empty.cmo
 
 multik: src/console_impl.o src/watcher_impl.o $(CORE_MLS) src/main.ml
 	ocamlfind ocamlc -linkpkg -package threads,dynlink -thread \
@@ -23,3 +23,6 @@ src/watcher_impl.o: src/watcher_impl.c
 
 samples/arkanoid.cmo: $(CORE_MLS) samples/arkanoid.ml
 	ocamlc -I ./src/ -c $(CORE_MLS) samples/arkanoid.ml
+
+samples/empty.cmo: $(CORE_MLS) samples/empty.ml
+	ocamlc -I ./src/ -c $(CORE_MLS) samples/empty.ml
