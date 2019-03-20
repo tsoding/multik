@@ -45,17 +45,20 @@ let render (animation_path: string) (output_filename): unit =
   let n = A.frames |> Flow.length in
   let dirpath = temp_dir "multik" "frames" in
   Printf.printf "Rendering frames to %s\n" dirpath;
-  A.frames
-  |> Flow.zip (Flow.from 0)
-  |> Flow.iter (fun (index, picture) ->
-       let filename = dirpath
-                      ^ Filename.dir_sep
-                      ^ string_of_int index
-                      ^ ".png"
-       in Printf.sprintf "Rendering frame %d/%d" (index + 1) n |> print_string;
-          Console.savePicture A.resolution filename picture;
-          print_string "\r";
-          flush stdout);
+  Cairo.with_context A.resolution
+    (fun c ->
+      A.frames
+      |> Flow.zip (Flow.from 0)
+      |> Flow.iter (fun (index, picture) ->
+             let filename = dirpath
+                            ^ Filename.dir_sep
+                            ^ string_of_int index
+                            ^ ".png"
+             in Printf.sprintf "Rendering frame %d/%d" (index + 1) n |> print_string;
+                Cairo.render c picture;
+                Cairo.save_to_png c filename;
+                print_string "\r";
+                flush stdout));
   print_endline "";
   let _ = compose_video_file dirpath A.fps output_filename
   in rmdir_rec dirpath
