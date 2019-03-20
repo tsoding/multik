@@ -43,6 +43,8 @@ multik_cairo_make(value width, value height)
         goto fail;
     }
 
+    context->texture = NULL;
+
     return (value) context;
 
 fail:
