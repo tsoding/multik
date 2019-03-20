@@ -14,7 +14,7 @@ let empty_animation_frame (screen_width, screen_height) =
              Font.make "Sans" 50.0, label_text)))
 
 let compose_video_file (dirpath: string) (fps: int) (output_filename: string): Unix.process_status =
-  Printf.sprintf "ffmpeg -framerate %d -i %s/%%d.png %s" fps dirpath output_filename
+  Printf.sprintf "ffmpeg -y -framerate %d -i %s/%%d.png %s" fps dirpath output_filename
   |> Unix.open_process_in
   |> Unix.close_process_in
 
@@ -22,6 +22,7 @@ let compose_video_file (dirpath: string) (fps: int) (output_filename: string): U
 let render (animation_path: string) (dirpath: string) (output_filename): unit =
   Dynlink.loadfile(animation_path);
   let module A = (val Animation.get_current () : Animation.T) in
+  let n = A.frames |> Flow.length in
   if not (Sys.file_exists dirpath) then Unix.mkdir dirpath 0o755;
   A.frames
   |> Flow.zip (Flow.from 0)
@@ -30,9 +31,12 @@ let render (animation_path: string) (dirpath: string) (output_filename): unit =
                       ^ Filename.dir_sep
                       ^ string_of_int index
                       ^ ".png"
-       in Console.savePicture A.resolution filename picture);
-  let _ = compose_video_file dirpath A.fps output_filename
-  in ()
+       in Printf.sprintf "Rendering frame %d/%d" (index + 1) n |> print_string;
+          Console.savePicture A.resolution filename picture;
+          print_string "\r";
+          flush stdout);
+  print_endline "";
+  let _ = compose_video_file dirpath A.fps output_filename in ()
 
 let preview (animation_path: string) =
   let rec loop (resolution: int * int) (delta_time: float) (frames: Picture.t Flow.t): unit =
