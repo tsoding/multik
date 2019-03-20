@@ -9,6 +9,7 @@ external fill_circle : t -> float -> float -> float -> unit = "multik_cairo_fill
 external draw_text : t -> float -> float -> string -> float -> string -> unit = "multik_cairo_draw_text"
 external boundary_text: t -> float -> float -> string -> float -> string -> float * float =
   "multik_cairo_boundary_text"
+external fill_chess_pattern : t -> unit = "multik_fill_chess_pattern"
 
 let with_context (width: int) (height: int) (block: t -> 'a): 'a =
   let context = make width height in
