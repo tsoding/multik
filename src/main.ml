@@ -13,8 +13,13 @@ let empty_animation_frame (screen_width, screen_height) =
               (float_of_int screen_height) *. 0.5 -. label_height *. 0.5),
              Font.make "Sans" 50.0, label_text)))
 
+let compose_video_file (dirpath: string) (fps: int) (output_filename: string): Unix.process_status =
+  Printf.sprintf "ffmpeg -framerate %d -i %s/%%d.png %s" fps dirpath output_filename
+  |> Unix.open_process_in
+  |> Unix.close_process_in
+
 (* TODO(#40): if the animation is infinite the rendering will be infinite *)
-let render (animation_path: string) (dirpath: string): unit =
+let render (animation_path: string) (dirpath: string) (output_filename): unit =
   Dynlink.loadfile(animation_path);
   let module A = (val Animation.get_current () : Animation.T) in
   if not (Sys.file_exists dirpath) then Unix.mkdir dirpath 0o755;
@@ -25,7 +30,9 @@ let render (animation_path: string) (dirpath: string): unit =
                       ^ Filename.dir_sep
                       ^ string_of_int index
                       ^ ".png"
-       in Console.savePicture A.resolution filename picture)
+       in Console.savePicture A.resolution filename picture);
+  let _ = compose_video_file dirpath A.fps output_filename
+  in ()
 
 let preview (animation_path: string) =
   let rec loop (resolution: int * int) (delta_time: float) (frames: Picture.t Flow.t): unit =
@@ -75,10 +82,10 @@ let () =
      preview animation_path
   | name :: "preview" :: _ ->
      Printf.fprintf stderr "Using %s preview <animation-path>" name
-  | _ :: "render" :: animation_path :: dirpath :: _ ->
-     render animation_path dirpath
+  | _ :: "render" :: animation_path :: dirpath :: output_filename :: _ ->
+     render animation_path dirpath output_filename
   (* TODO(#58): `./multik render` segfaults *)
   | name :: "render" :: _ ->
-     Printf.fprintf stderr "Using: %s render <animation-path> <dirpath>" name
+     Printf.fprintf stderr "Using: %s render <animation-path> <dirpath> <output-filename>" name
   | name :: _ -> Printf.fprintf stderr "Using: %s <preview|render>" name
   | _ -> Printf.fprintf stderr "Using: <program> <preview|render>"
