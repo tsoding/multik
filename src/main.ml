@@ -22,6 +22,7 @@ let compose_video_file (dirpath: string) (fps: int) (output_filename: string): U
 let render (animation_path: string) (dirpath: string) (output_filename): unit =
   Dynlink.loadfile(animation_path);
   let module A = (val Animation.get_current () : Animation.T) in
+  let n = A.frames |> Flow.length in
   if not (Sys.file_exists dirpath) then Unix.mkdir dirpath 0o755;
   A.frames
   |> Flow.zip (Flow.from 0)
@@ -30,7 +31,8 @@ let render (animation_path: string) (dirpath: string) (output_filename): unit =
                       ^ Filename.dir_sep
                       ^ string_of_int index
                       ^ ".png"
-       in Console.savePicture A.resolution filename picture);
+       in Printf.sprintf "Rendering frame %d/%d" (index + 1) n |> print_endline;
+          Console.savePicture A.resolution filename picture);
   let _ = compose_video_file dirpath A.fps output_filename
   in ()
 

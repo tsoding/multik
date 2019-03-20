@@ -87,3 +87,8 @@ let rec iter (f: 'a -> unit) (xs: 'a t): unit =
   | Nil -> ()
   | Cons (x, xs) -> Lazy.force x |> f;
                     iter f xs
+
+let rec length (xs: 'a t): int =
+  match Lazy.force xs.flow with
+  | Nil -> 0
+  | Cons (_, xs) -> 1 + length xs
