@@ -18,12 +18,33 @@ let compose_video_file (dirpath: string) (fps: int) (output_filename: string): U
   |> Unix.open_process_in
   |> Unix.close_process_in
 
+let temp_dir (prefix: string) (suffix: string): string =
+  let filename = Filename.temp_file prefix suffix in
+  Sys.remove filename;
+  Unix.mkdir filename 0o755;
+  filename
+
+let rec rmdir_rec (path: string): unit =
+  Printf.printf "Remove %s\n" path;
+  if Sys.is_directory path
+  then
+    (let children = path
+                    |> Sys.readdir
+                    |> Array.to_list
+     in if List.length children > 0
+        then children
+             |> List.map (Filename.concat path)
+             |> List.iter rmdir_rec;
+        Unix.rmdir path)
+  else Sys.remove path
+
 (* TODO(#40): if the animation is infinite the rendering will be infinite *)
-let render (animation_path: string) (dirpath: string) (output_filename): unit =
+let render (animation_path: string) (output_filename): unit =
   Dynlink.loadfile(animation_path);
   let module A = (val Animation.get_current () : Animation.T) in
   let n = A.frames |> Flow.length in
-  if not (Sys.file_exists dirpath) then Unix.mkdir dirpath 0o755;
+  let dirpath = temp_dir "multik" "frames" in
+  Printf.printf "Rendering frames to %s\n" dirpath;
   A.frames
   |> Flow.zip (Flow.from 0)
   |> Flow.iter (fun (index, picture) ->
@@ -36,7 +57,8 @@ let render (animation_path: string) (dirpath: string) (output_filename): unit =
           print_string "\r";
           flush stdout);
   print_endline "";
-  let _ = compose_video_file dirpath A.fps output_filename in ()
+  let _ = compose_video_file dirpath A.fps output_filename
+  in rmdir_rec dirpath
 
 let preview (animation_path: string) =
   let rec loop (resolution: int * int) (delta_time: float) (frames: Picture.t Flow.t): unit =
@@ -86,10 +108,10 @@ let () =
      preview animation_path
   | name :: "preview" :: _ ->
      Printf.fprintf stderr "Using %s preview <animation-path>" name
-  | _ :: "render" :: animation_path :: dirpath :: output_filename :: _ ->
-     render animation_path dirpath output_filename
+  | _ :: "render" :: animation_path :: output_filename :: _ ->
+     render animation_path output_filename
   (* TODO(#58): `./multik render` segfaults *)
   | name :: "render" :: _ ->
-     Printf.fprintf stderr "Using: %s render <animation-path> <dirpath> <output-filename>" name
+     Printf.fprintf stderr "Using: %s render <animation-path> <output-filename>" name
   | name :: _ -> Printf.fprintf stderr "Using: %s <preview|render>" name
   | _ -> Printf.fprintf stderr "Using: <program> <preview|render>"
