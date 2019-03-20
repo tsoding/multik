@@ -14,9 +14,9 @@ let renderPicture (p: Picture.t): unit =
       Cairo.fill_chess_pattern c;
       Cairo.render c p)
 
-let savePicture (width, height: int * int) (filename: string) (picture: Picture.t) : unit =
+let savePicture (resolution: int * int) (filename: string) (picture: Picture.t) : unit =
   Cairo.with_context
-    width height
+    resolution
     (fun c ->
       Cairo.render c picture;
       Cairo.save_to_png c filename)

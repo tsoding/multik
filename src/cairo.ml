@@ -11,7 +11,7 @@ external boundary_text: t -> float -> float -> string -> float -> string -> floa
   "multik_cairo_boundary_text"
 external fill_chess_pattern : t -> unit = "multik_fill_chess_pattern"
 
-let with_context (width: int) (height: int) (block: t -> 'a): 'a =
+let with_context (width, height: int * int) (block: t -> 'a): 'a =
   let context = make width height in
   try
     let value = block context in
