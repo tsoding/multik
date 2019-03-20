@@ -12,6 +12,7 @@ external texture: unit -> SdlTexture.t = "console_texture"
 let renderPicture (p: Picture.t): unit =
   Cairo.with_texture (texture ())
     (fun c ->
+      Cairo.fill_chess_pattern c;
       Cairo.render c p)
 
 let savePicture (width, height: int * int) (filename: string) (picture: Picture.t) : unit =
