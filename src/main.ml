@@ -14,8 +14,7 @@ let empty_animation_frame (screen_width, screen_height) =
              Font.make "Sans" 50.0, label_text)))
 
 let compose_video_file (dirpath: string) (fps: int) (output_filename: string): Unix.process_status =
-  (* TODO: ffmpeg is run in an interactive mode *)
-  Printf.sprintf "ffmpeg -framerate %d -i %s/%%d.png %s" fps dirpath output_filename
+  Printf.sprintf "ffmpeg -y -framerate %d -i %s/%%d.png %s" fps dirpath output_filename
   |> Unix.open_process_in
   |> Unix.close_process_in
 
