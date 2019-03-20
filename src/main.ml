@@ -24,6 +24,20 @@ let temp_dir (prefix: string) (suffix: string): string =
   Unix.mkdir filename 0o755;
   filename
 
+let rec rmdir_rec (path: string): unit =
+  Printf.printf "Remove %s\n" path;
+  if Sys.is_directory path
+  then
+    (let children = path
+                    |> Sys.readdir
+                    |> Array.to_list
+     in if List.length children > 0
+        then children
+             |> List.map (Filename.concat path)
+             |> List.iter rmdir_rec;
+        Unix.rmdir path)
+  else Sys.remove path
+
 (* TODO(#40): if the animation is infinite the rendering will be infinite *)
 let render (animation_path: string) (output_filename): unit =
   Dynlink.loadfile(animation_path);
@@ -43,7 +57,8 @@ let render (animation_path: string) (output_filename): unit =
           print_string "\r";
           flush stdout);
   print_endline "";
-  let _ = compose_video_file dirpath A.fps output_filename in ()
+  let _ = compose_video_file dirpath A.fps output_filename
+  in rmdir_rec dirpath
 
 let preview (animation_path: string) =
   let rec loop (resolution: int * int) (delta_time: float) (frames: Picture.t Flow.t): unit =
