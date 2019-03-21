@@ -76,7 +76,7 @@ let preview (animation_path: string) =
           else (let frame_begin = Sys.time () in
                 match Flow.uncons frames with
                 | Some (frame, rest_frames) ->
-                   frame |> Console.renderPicture;
+                   frame |> Console.render_picture;
                    Console.present ();
                    let frame_work = Sys.time () -. frame_begin in
                    (*
