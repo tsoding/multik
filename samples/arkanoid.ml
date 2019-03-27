@@ -19,10 +19,11 @@ module Arkanoid : Animation.T =
     let render state =
       let (x, y) = state.position in
       let (w, h) = resolution in
-      [ Picture.rect 0.0 0.0 (float_of_int w) (float_of_int h)
+      [ Picture.rect (float_of_int w) (float_of_int h)
         |> (Color.rgb 0.1 0.1 0.1 |> Picture.color)
-      ; Picture.circle x y radius
+      ; Picture.circle radius
         |> (Color.rgb 0.1 0.1 0.8 |> Picture.color)
+        |> Picture.translate x y
       ] |> Picture.compose
 
     let wall_collision (state: t): t =
