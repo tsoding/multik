@@ -7,7 +7,7 @@ external set_fill_color : t -> float -> float -> float -> float -> unit = "multi
 external fill_rect : t -> float -> float -> float -> float -> unit = "multik_cairo_fill_rect"
 external fill_circle : t -> float -> float -> float -> unit = "multik_cairo_fill_circle"
 external draw_text : t -> float -> float -> string -> float -> string -> unit = "multik_cairo_draw_text"
-external boundary_text: t -> float -> float -> string -> float -> string -> float * float =
+external boundary_text: t -> float -> float -> string -> float -> string -> Vec2.t =
   "multik_cairo_boundary_text"
 external fill_chess_pattern : t -> unit = "multik_fill_chess_pattern"
 
@@ -59,7 +59,7 @@ let rec boundary (context: t) (p: Picture.t): Rect.t =
      let (x1, y1, w, h) = boundary context p
      in (x +. x1, y +. y1, w, h)
 
-let rec render_with_context (context: t) (c: (float * float) * Color.t) (p: Picture.t): unit =
+let rec render_with_context (context: t) (c: Vec2.t * Color.t) (p: Picture.t): unit =
   let (((x, y) as position), ((r, g, b, a) as color)) = c in
   set_fill_color context r g b a;
   match p with
@@ -79,8 +79,9 @@ let rec render_with_context (context: t) (c: (float * float) * Color.t) (p: Pict
       |> boundary context
       |> template
       |> render_with_context context c
-  | Translate ((x1, y1), p) ->
-     render_with_context context ((x +. x1, y +. y1), color) p
+  | Translate (position1, p) ->
+     let open Vec2 in
+     render_with_context context (position |+| position1, color) p
 
 let render (context: t) (p: Picture.t) =
   render_with_context context ((0.0, 0.0), Color.black) p

@@ -2,8 +2,8 @@ module Arkanoid : Animation.T =
   struct
     type t =
       {
-        position: float * float;
-        direction: float * float;
+        position: Vec2.t;
+        direction: Vec2.t;
       }
 
     let radius = 50.0
