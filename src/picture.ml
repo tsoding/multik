@@ -1,4 +1,4 @@
-(* TODO: Picture doesn't have Rotate operation *)
+(* TODO(#72): Picture doesn't have Rotate operation *)
 (* TODO: Picture doesn't have Scale operation *)
 type t = Nothing
        | Color of Color.t * t
