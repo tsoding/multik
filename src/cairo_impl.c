@@ -310,8 +310,8 @@ multik_cairo_save_to_png(value context_value, value filename)
 {
     const struct Context *context = (struct Context *)context_value;
 
-    if (!context) {
-        return Val_unit;
+    if (context == NULL) {
+        caml_failwith("Context is NULL!");
     }
 
     cairo_status_t res = cairo_surface_write_to_png(context->surface, String_val(filename));
