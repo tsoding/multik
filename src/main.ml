@@ -1,17 +1,17 @@
 let empty_animation_frame (screen_width, screen_height) =
   let label_text = "<no animation>" in
   let label_at position =
-    Picture.Text (position, Font.make "Sans" 50.0, label_text)
+    Picture.Text (Font.make "Sans" 50.0, label_text)
   in
   Picture.sizeOf
     (label_at (0.0, 0.0))
     (fun (_, _, label_width, label_height) ->
       Picture.Color
         ( Color.red
-        , Picture.Text
-            (((float_of_int screen_width) *. 0.5 -. label_width *. 0.5,
-              (float_of_int screen_height) *. 0.5 -. label_height *. 0.5),
-             Font.make "Sans" 50.0, label_text)))
+        , Picture.Text (Font.make "Sans" 50.0, label_text)
+          |> Picture.translate
+               (float_of_int screen_width *. 0.5 -. label_width *. 0.5)
+               (float_of_int screen_height *. 0.5 -. label_height *. 0.5)))
 
 let compose_video_file (dirpath: string) (fps: int) (output_filename: string): Unix.process_status =
   Printf.sprintf "ffmpeg -y -framerate %d -i %s/%%d.png %s" fps dirpath output_filename
