@@ -97,7 +97,7 @@ let rec render_with_context (context: t) (transformations: transformations_t) (p
      let open Mat3x3 in
      let x, y = (0.0, 0.0) |*.*| transformations.mat in
      fill_circle context x y radius
-  (* TODO: Text does not support scaling *)
+  (* TODO(#82): Text does not support scaling *)
   | Text (font, text) ->
      let open Mat3x3 in
      let x, y = (0.0, 0.0) |*.*| transformations.mat in
