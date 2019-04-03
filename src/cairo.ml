@@ -15,7 +15,7 @@ let default_transformations =
 external make : int -> int -> t = "multik_cairo_make"
 external make_from_texture: SdlTexture.t -> t = "multik_cairo_make_from_texture"
 external free : t -> unit = "multik_cairo_free"
-(* TODO: set_file_color should accept Color.t instead of 4 arguments *)
+(* TODO(#77): set_file_color should accept Color.t instead of 4 arguments *)
 external set_fill_color : t -> float -> float -> float -> float -> unit = "multik_cairo_set_fill_color"
 (* TODO: fill_rect should accept Vec2.t for its position instead of x and y separately *)
 external fill_rect : t -> float -> float -> float -> float -> unit = "multik_cairo_fill_rect"
