@@ -28,7 +28,7 @@ module Rotation : Animation.T =
 
     let dots ps =
       ps
-      |> List.map (fun (x, y) -> dot |> Picture.translate x y)
+      |> List.map (fun (x, y) -> dot |> Picture.translate (x, y))
       |> Picture.compose
 
 
@@ -49,10 +49,9 @@ module Rotation : Animation.T =
                         |> rotate_ps state.angle
                         |> dots
                         |> Picture.translate
-                             (float_of_int width *. 0.5)
-                             (float_of_int height *. 0.5)]
+                             (float_of_int width *. 0.5, float_of_int height *. 0.5)]
 
-    let update_state state = {state with angle = state.angle +. 0.06}
+    let update_state state = {angle = state.angle +. 0.06}
 
     let frames =
       Flow.iterate update_state init_state

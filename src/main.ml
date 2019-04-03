@@ -10,8 +10,7 @@ let empty_animation_frame (screen_width, screen_height) =
         ( Color.red
         , Picture.Text (Font.make "Sans" 50.0, label_text)
           |> Picture.translate
-               (float_of_int screen_width *. 0.5 -. label_width *. 0.5)
-               (float_of_int screen_height *. 0.5 -. label_height *. 0.5)))
+               (float_of_int screen_width *. 0.5 -. label_width *. 0.5, float_of_int screen_height *. 0.5 -. label_height *. 0.5)))
 
 let compose_video_file (dirpath: string) (fps: int) (output_filename: string): Unix.process_status =
   Printf.sprintf "ffmpeg -y -framerate %d -i %s/%%d.png %s" fps dirpath output_filename

@@ -3,6 +3,7 @@
 type t = Nothing
        | Color of Color.t * t
        | Translate of (float * float) * t
+       | Scale of (float * float) * t
        | Rect of float * float
        | Circle of float
        | Text of Font.t * string
@@ -14,7 +15,7 @@ let nothing = Nothing
 let color (c: Color.t) (p: t): t =
   Color (c, p)
 
-let rect (w: float) (h: float): t =
+let rect (w, h: float * float): t =
   Rect (w, h)
 
 let circle (r: float): t =
@@ -29,5 +30,8 @@ let text (font: Font.t) (text: string): t =
 let sizeOf (p: t) (template: Rect.t -> t): t =
   SizeOf (p, template)
 
-let translate (x: float) (y: float) (p: t): t =
+let translate (x, y: float * float) (p: t): t =
   Translate ((x, y), p)
+
+let scale (sx, sy: float * float) (p: t): t =
+  Scale ((sx, sy), p)
