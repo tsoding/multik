@@ -19,7 +19,7 @@ external free : t -> unit = "multik_cairo_free"
 external set_fill_color : t -> float -> float -> float -> float -> unit = "multik_cairo_set_fill_color"
 (* TODO(#78): fill_rect should accept Vec2.t for its position instead of x and y separately *)
 external fill_rect : t -> float -> float -> float -> float -> unit = "multik_cairo_fill_rect"
-(* TODO: fill_circle should accept Vec2.t for its position instead of x and y separately *)
+(* TODO(#79): fill_circle should accept Vec2.t for its position instead of x and y separately *)
 external fill_circle : t -> float -> float -> float -> unit = "multik_cairo_fill_circle"
 (* TODO: draw_text should accept Vec2.t for it position instead of x and y separately *)
 external draw_text : t -> float -> float -> string -> float -> string -> unit = "multik_cairo_draw_text"
