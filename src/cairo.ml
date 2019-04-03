@@ -92,7 +92,7 @@ let rec render_with_context (context: t) (transformations: transformations_t) (p
      List.iter (render_with_context context transformations) ps
   | Color (color, p) ->
      render_with_context context ({transformations with color = color}) p
-  (* TODO: Circle radius doesn't support scaling *)
+  (* TODO(#81): Circle radius doesn't support scaling *)
   | Circle (radius) ->
      let open Mat3x3 in
      let x, y = (0.0, 0.0) |*.*| transformations.mat in
