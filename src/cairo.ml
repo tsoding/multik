@@ -21,7 +21,7 @@ external set_fill_color : t -> float -> float -> float -> float -> unit = "multi
 external fill_rect : t -> float -> float -> float -> float -> unit = "multik_cairo_fill_rect"
 (* TODO(#79): fill_circle should accept Vec2.t for its position instead of x and y separately *)
 external fill_circle : t -> float -> float -> float -> unit = "multik_cairo_fill_circle"
-(* TODO: draw_text should accept Vec2.t for it position instead of x and y separately *)
+(* TODO(#80): draw_text should accept Vec2.t for it position instead of x and y separately *)
 external draw_text : t -> float -> float -> string -> float -> string -> unit = "multik_cairo_draw_text"
 external boundary_text: t -> float -> float -> string -> float -> string -> Vec2.t =
   "multik_cairo_boundary_text"
