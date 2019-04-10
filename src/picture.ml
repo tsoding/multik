@@ -4,6 +4,7 @@ type t = Nothing
        | Color of Color.t * t
        | Translate of (float * float) * t
        | Scale of (float * float) * t
+       | Rotate of float * t
        | Rect of float * float
        | Circle of float
        | Text of Font.t * string
@@ -35,3 +36,6 @@ let translate (x, y: float * float) (p: t): t =
 
 let scale (sx, sy: float * float) (p: t): t =
   Scale ((sx, sy), p)
+
+let rotate (angle: float) (p: t): t =
+  Rotate (angle, p)
