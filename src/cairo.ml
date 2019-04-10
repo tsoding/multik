@@ -15,15 +15,11 @@ let default_transformations =
 external make : int -> int -> t = "multik_cairo_make"
 external make_from_texture: SdlTexture.t -> t = "multik_cairo_make_from_texture"
 external free : t -> unit = "multik_cairo_free"
-(* TODO(#77): set_file_color should accept Color.t instead of 4 arguments *)
-external set_fill_color : t -> float -> float -> float -> float -> unit = "multik_cairo_set_fill_color"
-(* TODO(#78): fill_rect should accept Vec2.t for its position instead of x and y separately *)
-external fill_rect : t -> float -> float -> float -> float -> unit = "multik_cairo_fill_rect"
-(* TODO(#79): fill_circle should accept Vec2.t for its position instead of x and y separately *)
-external fill_circle : t -> float -> float -> float -> unit = "multik_cairo_fill_circle"
-(* TODO(#80): draw_text should accept Vec2.t for it position instead of x and y separately *)
-external draw_text : t -> float -> float -> string -> float -> string -> unit = "multik_cairo_draw_text"
-external boundary_text: t -> float -> float -> string -> float -> string -> Vec2.t =
+external set_fill_color : t -> Color.t -> unit = "multik_cairo_set_fill_color"
+external fill_rect : t -> Rect.t -> unit = "multik_cairo_fill_rect"
+external fill_circle : t -> Vec2.t -> float -> unit = "multik_cairo_fill_circle"
+external draw_text : t -> Vec2.t -> Font.t -> string -> unit = "multik_cairo_draw_text"
+external boundary_text: t -> Vec2.t -> Font.t -> string -> Vec2.t =
   "multik_cairo_boundary_text"
 external fill_chess_pattern : t -> unit = "multik_fill_chess_pattern"
 
@@ -61,7 +57,7 @@ let rec boundary (context: t) (p: Picture.t): Rect.t =
   | Circle (radius) ->
      (0.0, 0.0, radius *. 2.0, radius *. 2.0)
   | Text (font, text) ->
-     let (w, h) = boundary_text context 0.0 0.0 font.name font.size text
+     let (w, h) = boundary_text context (0.0, 0.0) font text
      in (0.0, 0.0, w, h)
   | Color (_, p) ->
      boundary context p
@@ -79,15 +75,13 @@ let rec boundary (context: t) (p: Picture.t): Rect.t =
      in (fx *. x, fy *. fy, fx *. w, fy *. h)
 
 let rec render_with_context (context: t) (transformations: transformations_t) (p: Picture.t): unit =
-  let (r, g, b, a) = transformations.color
-  in set_fill_color context r g b a;
+  set_fill_color context transformations.color;
   match p with
   | Nothing -> ()
   | Rect (w0, h0) ->
      let open Mat3x3 in
-     let x1, y1 = (0.0, 0.0) |*.*| transformations.mat in
-     let x2, y2 = (w0, h0) |*.*| transformations.mat in
-     fill_rect context x1 y1 (abs_float (x2 -. x1)) (abs_float (y2 -. y1))
+     Rect.from_points ((0.0, 0.0) |*.*| transformations.mat) ((w0, h0) |*.*| transformations.mat)
+     |> fill_rect context
   | Compose ps ->
      List.iter (render_with_context context transformations) ps
   | Color (color, p) ->
@@ -95,13 +89,11 @@ let rec render_with_context (context: t) (transformations: transformations_t) (p
   (* TODO(#81): Circle radius doesn't support scaling *)
   | Circle (radius) ->
      let open Mat3x3 in
-     let x, y = (0.0, 0.0) |*.*| transformations.mat in
-     fill_circle context x y radius
+     fill_circle context ((0.0, 0.0) |*.*| transformations.mat) radius
   (* TODO(#82): Text does not support scaling *)
   | Text (font, text) ->
      let open Mat3x3 in
-     let x, y = (0.0, 0.0) |*.*| transformations.mat in
-     draw_text context x y font.name font.size text
+     draw_text context ((0.0, 0.0) |*.*| transformations.mat) font text
   | SizeOf (p, template) ->
       p
       |> boundary context
