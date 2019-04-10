@@ -2,7 +2,7 @@ CORE_MLS=src/flow.ml src/color.ml src/font.ml src/vec2.ml src/rect.ml src/pictur
 CFLAGS=-Wall -Werror -Wconversion $(shell pkg-config --cflags sdl2 cairo)
 LIBS=$(shell pkg-config --libs sdl2 cairo)
 OBJS=src/cairo_matrix_impl.o src/cairo_impl.o src/console_impl.o src/watcher_impl.o
-SAMPLES=samples/arkanoid.cmo samples/empty.cmo samples/rotation.cmo samples/scalingTest.cmo
+SAMPLES=samples/arkanoid.cmo samples/empty.cmo samples/rotation.cmo samples/swirl.cmo
 
 all: multik $(SAMPLES)
 

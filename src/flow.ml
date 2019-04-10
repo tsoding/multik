@@ -67,6 +67,15 @@ let rec take (n : int) (xs : 'a t): 'a t =
                          Cons (x, take (n - 1) xs))
   }
 
+let rec drop (n : int) (xs : 'a t): 'a t =
+  {
+    flow = lazy (if n <= 0
+                 then Lazy.force xs.flow
+                 else match Lazy.force xs.flow with
+                      | Nil -> Nil
+                      | Cons (x, xs) -> Lazy.force (drop (n - 1) xs).flow)
+  }
+
 let rec zip (xs : 'a t) (ys : 'b t): ('a * 'b) t =
   match (Lazy.force xs.flow, Lazy.force ys.flow) with
   | (Nil, _) -> nil
