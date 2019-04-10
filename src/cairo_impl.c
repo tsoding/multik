@@ -252,8 +252,14 @@ multik_cairo_fill_rect(value context_value, value rect)
 }
 
 CAMLprim value
-multik_cairo_fill_circle(value context_value, value x, value y, value r)
+multik_cairo_fill_circle(value context_value, value center, value r)
 {
+    CAMLparam3(context_value, center, r);
+    CAMLlocal2(x, y);
+
+    x = Field(center, 0);
+    y = Field(center, 1);
+
     struct Context *context = (struct Context *) context_value;
 
     if (context == NULL) {
@@ -265,7 +271,7 @@ multik_cairo_fill_circle(value context_value, value x, value y, value r)
               0.0, 2 * M_PI);
     cairo_fill(context->context);
 
-    return Val_unit;
+    CAMLreturn(Val_unit);
 }
 
 CAMLprim value

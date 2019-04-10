@@ -17,8 +17,7 @@ external make_from_texture: SdlTexture.t -> t = "multik_cairo_make_from_texture"
 external free : t -> unit = "multik_cairo_free"
 external set_fill_color : t -> Color.t -> unit = "multik_cairo_set_fill_color"
 external fill_rect : t -> Rect.t -> unit = "multik_cairo_fill_rect"
-(* TODO(#79): fill_circle should accept Vec2.t for its position instead of x and y separately *)
-external fill_circle : t -> float -> float -> float -> unit = "multik_cairo_fill_circle"
+external fill_circle : t -> Vec2.t -> float -> unit = "multik_cairo_fill_circle"
 (* TODO(#80): draw_text should accept Vec2.t for it position instead of x and y separately *)
 external draw_text : t -> float -> float -> string -> float -> string -> unit = "multik_cairo_draw_text"
 external boundary_text: t -> float -> float -> string -> float -> string -> Vec2.t =
@@ -91,8 +90,7 @@ let rec render_with_context (context: t) (transformations: transformations_t) (p
   (* TODO(#81): Circle radius doesn't support scaling *)
   | Circle (radius) ->
      let open Mat3x3 in
-     let x, y = (0.0, 0.0) |*.*| transformations.mat in
-     fill_circle context x y radius
+     fill_circle context ((0.0, 0.0) |*.*| transformations.mat) radius
   (* TODO(#82): Text does not support scaling *)
   | Text (font, text) ->
      let open Mat3x3 in
