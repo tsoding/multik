@@ -1,4 +1,4 @@
-CORE_MLS=src/flow.ml src/color.ml src/font.ml src/vec2.ml src/rect.ml src/picture.ml src/sdlTexture.ml src/mat3x3.ml src/cairo_matrix.ml src/cairo.mli src/cairo.ml src/console.ml src/watcher.ml src/animation.ml
+CORE_MLS=src/flow.ml src/color.ml src/font.ml src/vec2.ml src/rect.ml src/picture.ml src/sdlTexture.ml src/cairo_matrix.ml src/cairo.mli src/cairo.ml src/console.ml src/watcher.ml src/animation.ml
 CFLAGS=-Wall -Werror -Wconversion $(shell pkg-config --cflags sdl2 cairo)
 LIBS=$(shell pkg-config --libs sdl2 cairo)
 OBJS=src/cairo_matrix_impl.o src/cairo_impl.o src/console_impl.o src/watcher_impl.o
