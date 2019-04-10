@@ -63,17 +63,17 @@ let rec boundary (context: t) (p: Picture.t): Rect.t =
      let (x, y, w, h) = boundary context p
      in (fx *. x, fy *. fy, fx *. w, fy *. h)
 
-let rec render_with_context (context: t) (color: Color.t) (p: Picture.t): unit =
-  set_fill_color context color;
+let rec render_with_context (context: t) (p: Picture.t): unit =
   match p with
   | Nothing -> ()
   | Rect (w0, h0) ->
      Rect.from_points (0.0, 0.0) (w0, h0)
      |> fill_rect context
   | Compose ps ->
-     List.iter (render_with_context context color) ps
+     List.iter (render_with_context context) ps
   | Color (color, p) ->
-     render_with_context context color p
+     set_fill_color context color;
+     render_with_context context p
   (* TODO(#81): Circle radius doesn't support scaling *)
   | Circle (radius) ->
      fill_circle context (0.0, 0.0) radius
@@ -84,17 +84,17 @@ let rec render_with_context (context: t) (color: Color.t) (p: Picture.t): unit =
       p
       |> boundary context
       |> template
-      |> render_with_context context color
+      |> render_with_context context
   | Translate (position, p) ->
      Cairo_matrix.translate position |> transform context;
-     render_with_context context color p;
+     render_with_context context p;
      Cairo_matrix.translate position |> Cairo_matrix.invert |> transform context
   | Scale (scaling, p) ->
      Cairo_matrix.scale scaling |> transform context;
-     render_with_context context color p;
+     render_with_context context p;
      Cairo_matrix.scale scaling |> Cairo_matrix.invert |> transform context
 
 let render (context: t) (p: Picture.t) =
-  render_with_context context Color.black p
+  render_with_context context p
 
 external save_to_png : t -> string -> unit = "multik_cairo_save_to_png"
