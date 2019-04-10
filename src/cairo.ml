@@ -1,15 +1,5 @@
 type t
 
-type transformations_t =
-  {
-    color: Color.t;
-  }
-
-let default_transformations =
-  {
-    color = Color.black;
-  }
-
 external make : int -> int -> t = "multik_cairo_make"
 external make_from_texture: SdlTexture.t -> t = "multik_cairo_make_from_texture"
 external free : t -> unit = "multik_cairo_free"
@@ -73,17 +63,17 @@ let rec boundary (context: t) (p: Picture.t): Rect.t =
      let (x, y, w, h) = boundary context p
      in (fx *. x, fy *. fy, fx *. w, fy *. h)
 
-let rec render_with_context (context: t) (transformations: transformations_t) (p: Picture.t): unit =
-  set_fill_color context transformations.color;
+let rec render_with_context (context: t) (color: Color.t) (p: Picture.t): unit =
+  set_fill_color context color;
   match p with
   | Nothing -> ()
   | Rect (w0, h0) ->
      Rect.from_points (0.0, 0.0) (w0, h0)
      |> fill_rect context
   | Compose ps ->
-     List.iter (render_with_context context transformations) ps
+     List.iter (render_with_context context color) ps
   | Color (color, p) ->
-     render_with_context context {color = color} p
+     render_with_context context color p
   (* TODO(#81): Circle radius doesn't support scaling *)
   | Circle (radius) ->
      fill_circle context (0.0, 0.0) radius
@@ -94,17 +84,17 @@ let rec render_with_context (context: t) (transformations: transformations_t) (p
       p
       |> boundary context
       |> template
-      |> render_with_context context transformations
+      |> render_with_context context color
   | Translate (position, p) ->
      Cairo_matrix.translate position |> transform context;
-     render_with_context context transformations p;
+     render_with_context context color p;
      Cairo_matrix.translate position |> Cairo_matrix.invert |> transform context
   | Scale (scaling, p) ->
      Cairo_matrix.scale scaling |> transform context;
-     render_with_context context transformations p;
+     render_with_context context color p;
      Cairo_matrix.scale scaling |> Cairo_matrix.invert |> transform context
 
 let render (context: t) (p: Picture.t) =
-  render_with_context context default_transformations p
+  render_with_context context Color.black p
 
 external save_to_png : t -> string -> unit = "multik_cairo_save_to_png"
