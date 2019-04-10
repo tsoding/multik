@@ -299,38 +299,40 @@ multik_cairo_draw_text(value context_value,
     cairo_text_path(context->context, String_val(text));
     cairo_fill(context->context);
 
-    return Val_unit;
+    CAMLreturn(Val_unit);
 }
 
 CAMLprim value
-multik_cairo_boundary_text(value *argv, value argn)
+multik_cairo_boundary_text(value context_value,
+                           value position,
+                           value font,
+                           value text)
 {
-    CAMLparamN(argv, argn);
-    CAMLlocal1(ab);
+    CAMLparam4(context_value, position, font, text);
+    CAMLlocal5(x, y, font_name, font_size, boundary);
 
-    ab = caml_alloc(2, 0);
+    x = Field(position, 0);
+    y = Field(position, 1);
+    font_name = Field(font, 0);
+    font_size = Field(font, 1);
+    boundary = caml_alloc(2, 0);
 
-    const struct Context *context = (struct Context *) argv[0];
-    const float x = Double_val(argv[1]);
-    const float y = Double_val(argv[2]);
-    const char *font_name = String_val(argv[3]);
-    const float font_size = Double_val(argv[4]);
-    const char *text = String_val(argv[5]);
+    const struct Context *context = (struct Context *) context_value;
 
     cairo_select_font_face(
         context->context, String_val(font_name),
         CAIRO_FONT_SLANT_NORMAL,
         CAIRO_FONT_WEIGHT_BOLD);
-    cairo_set_font_size(context->context, font_size);
-    cairo_move_to(context->context, x, y);
+    cairo_set_font_size(context->context, Double_val(font_size));
+    cairo_move_to(context->context, Double_val(x), Double_val(y));
 
     cairo_text_extents_t extents;
-    cairo_text_extents(context->context, text, &extents);
+    cairo_text_extents(context->context, String_val(text), &extents);
 
-    Store_field(ab, 0, caml_copy_double(extents.width));
-    Store_field(ab, 1, caml_copy_double(extents.height));
+    Store_field(boundary, 0, caml_copy_double(extents.width));
+    Store_field(boundary, 1, caml_copy_double(extents.height));
 
-    CAMLreturn(ab);
+    CAMLreturn(boundary);
 }
 
 CAMLprim value

@@ -19,8 +19,7 @@ external set_fill_color : t -> Color.t -> unit = "multik_cairo_set_fill_color"
 external fill_rect : t -> Rect.t -> unit = "multik_cairo_fill_rect"
 external fill_circle : t -> Vec2.t -> float -> unit = "multik_cairo_fill_circle"
 external draw_text : t -> Vec2.t -> Font.t -> string -> unit = "multik_cairo_draw_text"
-(* TODO: boundary_text is not type-safe enough *)
-external boundary_text: t -> float -> float -> string -> float -> string -> Vec2.t =
+external boundary_text: t -> Vec2.t -> Font.t -> string -> Vec2.t =
   "multik_cairo_boundary_text"
 external fill_chess_pattern : t -> unit = "multik_fill_chess_pattern"
 
@@ -58,7 +57,7 @@ let rec boundary (context: t) (p: Picture.t): Rect.t =
   | Circle (radius) ->
      (0.0, 0.0, radius *. 2.0, radius *. 2.0)
   | Text (font, text) ->
-     let (w, h) = boundary_text context 0.0 0.0 font.name font.size text
+     let (w, h) = boundary_text context (0.0, 0.0) font text
      in (0.0, 0.0, w, h)
   | Color (_, p) ->
      boundary context p
