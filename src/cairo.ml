@@ -18,8 +18,8 @@ external free : t -> unit = "multik_cairo_free"
 external set_fill_color : t -> Color.t -> unit = "multik_cairo_set_fill_color"
 external fill_rect : t -> Rect.t -> unit = "multik_cairo_fill_rect"
 external fill_circle : t -> Vec2.t -> float -> unit = "multik_cairo_fill_circle"
-(* TODO(#80): draw_text should accept Vec2.t for it position instead of x and y separately *)
-external draw_text : t -> float -> float -> string -> float -> string -> unit = "multik_cairo_draw_text"
+external draw_text : t -> Vec2.t -> Font.t -> string -> unit = "multik_cairo_draw_text"
+(* TODO: boundary_text is not type-safe enough *)
 external boundary_text: t -> float -> float -> string -> float -> string -> Vec2.t =
   "multik_cairo_boundary_text"
 external fill_chess_pattern : t -> unit = "multik_fill_chess_pattern"
@@ -94,8 +94,7 @@ let rec render_with_context (context: t) (transformations: transformations_t) (p
   (* TODO(#82): Text does not support scaling *)
   | Text (font, text) ->
      let open Mat3x3 in
-     let x, y = (0.0, 0.0) |*.*| transformations.mat in
-     draw_text context x y font.name font.size text
+     draw_text context ((0.0, 0.0) |*.*| transformations.mat) font text
   | SizeOf (p, template) ->
       p
       |> boundary context

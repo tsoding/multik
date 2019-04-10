@@ -275,22 +275,28 @@ multik_cairo_fill_circle(value context_value, value center, value r)
 }
 
 CAMLprim value
-multik_cairo_draw_text(value *argv, value argn)
+multik_cairo_draw_text(value context_value,
+                       value position,
+                       value font,
+                       value text)
 {
-    const struct Context *context = (struct Context *) argv[0];
-    const float x = Double_val(argv[1]);
-    const float y = Double_val(argv[2]);
-    const char *font_name = String_val(argv[3]);
-    const double font_size = Double_val(argv[4]);
-    const char *text = String_val(argv[5]);
+    CAMLparam4(context_value, position, font, text);
+    CAMLlocal4(x, y, font_name, font_size);
+
+    x = Field(position, 0);
+    y = Field(position, 1);
+    font_name = Field(font, 0);
+    font_size = Field(font, 1);
+
+    const struct Context *context = (struct Context *) context_value;
 
     cairo_select_font_face(
         context->context, String_val(font_name),
         CAIRO_FONT_SLANT_NORMAL,
         CAIRO_FONT_WEIGHT_BOLD);
-    cairo_set_font_size(context->context, font_size);
-    cairo_move_to(context->context, x, y);
-    cairo_text_path(context->context, text);
+    cairo_set_font_size(context->context, Double_val(font_size));
+    cairo_move_to(context->context, Double_val(x), Double_val(y));
+    cairo_text_path(context->context, String_val(text));
     cairo_fill(context->context);
 
     return Val_unit;
