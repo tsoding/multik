@@ -177,12 +177,12 @@ multik_fill_chess_pattern(value context_value)
 
     double x1, y1, x2, y2;
     cairo_clip_extents(context->context, &x1, &y1, &x2, &y2);
-    const int w = x2 - x1;
-    const int h = y2 - y1;
+    const double w = x2 - x1;
+    const double h = y2 - y1;
 
-    const int cell_size = 12;
-    const int rows = (h + cell_size) / cell_size;
-    const int columns = (w + cell_size) / cell_size;
+    const double cell_size = 12.0;
+    const double rows = (h + cell_size) / cell_size;
+    const double columns = (w + cell_size) / cell_size;
 
 
     for (int y = 0; y < rows; ++y) {
@@ -195,8 +195,8 @@ multik_fill_chess_pattern(value context_value)
 
             cairo_rectangle(
                 context->context,
-                (float) (x * cell_size), (float) (y * cell_size),
-                (float) cell_size, (float) cell_size);
+                x * cell_size, y * cell_size,
+                cell_size, cell_size);
             cairo_fill(context->context);
         }
     }

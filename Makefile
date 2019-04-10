@@ -1,6 +1,5 @@
 CORE_MLS=src/flow.ml src/color.ml src/font.ml src/vec2.ml src/rect.ml src/picture.ml src/sdlTexture.ml src/mat3x3.ml src/cairo.mli src/cairo.ml src/console.ml src/watcher.ml src/animation.ml
-# TODO: -Wconversion is not enabled
-CFLAGS=-Wall -Werror $(shell pkg-config --cflags sdl2 cairo)
+CFLAGS=-Wall -Werror -Wconversion $(shell pkg-config --cflags sdl2 cairo)
 LIBS=$(shell pkg-config --libs sdl2 cairo)
 OBJS=src/cairo_impl.o src/console_impl.o src/watcher_impl.o
 SAMPLES=samples/arkanoid.cmo samples/empty.cmo samples/rotation.cmo samples/scalingTest.cmo
