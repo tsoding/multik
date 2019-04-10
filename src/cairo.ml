@@ -30,6 +30,7 @@ let with_texture (texture: SdlTexture.t) (block: t -> 'a): 'a =
   with e -> free context;
             raise e
 
+(* TODO: Boundary calculcation is probably broken *)
 let rec boundary (context: t) (p: Picture.t): Rect.t =
   match p with
   | Rect (w, h) -> (0.0, 0.0, w, h)
@@ -62,6 +63,7 @@ let rec boundary (context: t) (p: Picture.t): Rect.t =
   | Scale ((fx, fy), p) ->
      let (x, y, w, h) = boundary context p
      in (fx *. x, fy *. fy, fx *. w, fy *. h)
+  | Rotate (_, p) -> boundary context p
 
 let rec render_with_context (context: t) (p: Picture.t): unit =
   match p with
@@ -74,10 +76,8 @@ let rec render_with_context (context: t) (p: Picture.t): unit =
   | Color (color, p) ->
      set_fill_color context color;
      render_with_context context p
-  (* TODO(#81): Circle radius doesn't support scaling *)
   | Circle (radius) ->
      fill_circle context (0.0, 0.0) radius
-  (* TODO(#82): Text does not support scaling *)
   | Text (font, text) ->
      draw_text context (0.0, 0.0) font text
   | SizeOf (p, template) ->
@@ -93,6 +93,10 @@ let rec render_with_context (context: t) (p: Picture.t): unit =
      Cairo_matrix.scale scaling |> transform context;
      render_with_context context p;
      Cairo_matrix.scale scaling |> Cairo_matrix.invert |> transform context
+  | Rotate (angle, p) ->
+     Cairo_matrix.rotate angle |> transform context;
+     render_with_context context p;
+     Cairo_matrix.rotate angle |> Cairo_matrix.invert |> transform context
 
 let render (context: t) (p: Picture.t) =
   render_with_context context p
