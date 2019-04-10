@@ -2,6 +2,9 @@
 
 #include <caml/mlvalues.h>
 #include <caml/fail.h>
+#include <caml/alloc.h>
+#include <caml/custom.h>
+#include <caml/memory.h>
 
 #include <SDL2/SDL.h>
 #include <cairo.h>
@@ -156,4 +159,27 @@ CAMLprim value
 console_texture(value unit)
 {
     return (value) texture;
+}
+
+CAMLprim value
+console_viewport(value unit)
+{
+    CAMLparam1(unit);
+    CAMLlocal1(result);
+
+    result = caml_alloc(4, 0);
+
+    if (renderer == NULL) {
+        caml_failwith("Renderer is not initialized");
+    }
+
+    SDL_Rect view_port;
+    SDL_RenderGetViewport(renderer, &view_port);
+
+    Store_field(result, 0, caml_copy_double(view_port.x));
+    Store_field(result, 1, caml_copy_double(view_port.y));
+    Store_field(result, 2, caml_copy_double(view_port.w));
+    Store_field(result, 3, caml_copy_double(view_port.h));
+
+    CAMLreturn(result);
 }
