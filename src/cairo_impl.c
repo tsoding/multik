@@ -352,34 +352,20 @@ multik_cairo_save_to_png(value context_value, value filename)
     return Val_unit;
 }
 
-static cairo_matrix_t mat_ocaml_to_cairo(value *args)
-{
-    /*
-    0 1 2
-    3 4 5
-    6 7 8
-    */
-    cairo_matrix_t matrix = {
-        .xx = Double_val(args[0]), .yx = Double_val(args[3]),
-        .xy = Double_val(args[1]), .yy = Double_val(args[4]),
-        .x0 = Double_val(args[2]), .y0 = Double_val(args[5])
-    };
-    return matrix;
-}
+void mat_ocaml_to_cairo(value input, cairo_matrix_t *output);
 
 CAMLprim value
 multik_cairo_transform(value context_value, value matrix_tuple)
 {
     CAMLparam2(context_value, matrix_tuple);
-    CAMLlocalN(args, 9);
-
     const struct Context *context = (struct Context *)context_value;
 
     if (context == NULL) {
         caml_failwith("Context is NULL!");
     }
 
-    cairo_matrix_t matrix = mat_ocaml_to_cairo(args);
+    cairo_matrix_t matrix;
+    mat_ocaml_to_cairo(matrix_tuple, &matrix);
     cairo_transform(context->context, &matrix);
 
     CAMLreturn(Val_unit);
