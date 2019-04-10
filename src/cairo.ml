@@ -16,8 +16,7 @@ external make : int -> int -> t = "multik_cairo_make"
 external make_from_texture: SdlTexture.t -> t = "multik_cairo_make_from_texture"
 external free : t -> unit = "multik_cairo_free"
 external set_fill_color : t -> Color.t -> unit = "multik_cairo_set_fill_color"
-(* TODO(#78): fill_rect should accept Vec2.t for its position instead of x and y separately *)
-external fill_rect : t -> float -> float -> float -> float -> unit = "multik_cairo_fill_rect"
+external fill_rect : t -> Rect.t -> unit = "multik_cairo_fill_rect"
 (* TODO(#79): fill_circle should accept Vec2.t for its position instead of x and y separately *)
 external fill_circle : t -> float -> float -> float -> unit = "multik_cairo_fill_circle"
 (* TODO(#80): draw_text should accept Vec2.t for it position instead of x and y separately *)
@@ -83,9 +82,8 @@ let rec render_with_context (context: t) (transformations: transformations_t) (p
   | Nothing -> ()
   | Rect (w0, h0) ->
      let open Mat3x3 in
-     let x1, y1 = (0.0, 0.0) |*.*| transformations.mat in
-     let x2, y2 = (w0, h0) |*.*| transformations.mat in
-     fill_rect context x1 y1 (abs_float (x2 -. x1)) (abs_float (y2 -. y1))
+     Rect.from_points ((0.0, 0.0) |*.*| transformations.mat) ((w0, h0) |*.*| transformations.mat)
+     |> fill_rect context
   | Compose ps ->
      List.iter (render_with_context context transformations) ps
   | Color (color, p) ->

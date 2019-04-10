@@ -229,8 +229,16 @@ multik_cairo_set_fill_color(value context_value, value color)
 }
 
 CAMLprim value
-multik_cairo_fill_rect(value context_value, value x, value y, value w, value h)
+multik_cairo_fill_rect(value context_value, value rect)
 {
+    CAMLparam2(context_value, rect);
+    CAMLlocal4(x, y, w, h);
+
+    x = Field(rect, 0);
+    y = Field(rect, 1);
+    w = Field(rect, 2);
+    h = Field(rect, 3);
+
     struct Context *context = (struct Context *) context_value;
 
     if (context == NULL) {
@@ -240,7 +248,7 @@ multik_cairo_fill_rect(value context_value, value x, value y, value w, value h)
     cairo_rectangle(context->context, Double_val(x), Double_val(y), Double_val(w), Double_val(h));
     cairo_fill(context->context);
 
-    return Val_unit;
+    CAMLreturn(Val_unit);
 }
 
 CAMLprim value
