@@ -15,8 +15,7 @@ let default_transformations =
 external make : int -> int -> t = "multik_cairo_make"
 external make_from_texture: SdlTexture.t -> t = "multik_cairo_make_from_texture"
 external free : t -> unit = "multik_cairo_free"
-(* TODO(#77): set_file_color should accept Color.t instead of 4 arguments *)
-external set_fill_color : t -> float -> float -> float -> float -> unit = "multik_cairo_set_fill_color"
+external set_fill_color : t -> Color.t -> unit = "multik_cairo_set_fill_color"
 (* TODO(#78): fill_rect should accept Vec2.t for its position instead of x and y separately *)
 external fill_rect : t -> float -> float -> float -> float -> unit = "multik_cairo_fill_rect"
 (* TODO(#79): fill_circle should accept Vec2.t for its position instead of x and y separately *)
@@ -79,8 +78,7 @@ let rec boundary (context: t) (p: Picture.t): Rect.t =
      in (fx *. x, fy *. fy, fx *. w, fy *. h)
 
 let rec render_with_context (context: t) (transformations: transformations_t) (p: Picture.t): unit =
-  let (r, g, b, a) = transformations.color
-  in set_fill_color context r g b a;
+  set_fill_color context transformations.color;
   match p with
   | Nothing -> ()
   | Rect (w0, h0) ->

@@ -205,8 +205,16 @@ multik_fill_chess_pattern(value context_value)
 }
 
 CAMLprim value
-multik_cairo_set_fill_color(value context_value, value r, value g, value b, value a)
+multik_cairo_set_fill_color(value context_value, value color)
 {
+    CAMLparam2(context_value, color);
+    CAMLlocal4(r, g, b, a);
+
+    r = Field(color, 0);
+    g = Field(color, 1);
+    b = Field(color, 2);
+    a = Field(color, 3);
+
     struct Context *context = (struct Context *) context_value;
 
     if (context == NULL) {
@@ -217,7 +225,7 @@ multik_cairo_set_fill_color(value context_value, value r, value g, value b, valu
                           Double_val(r), Double_val(g), Double_val(b),
                           Double_val(a));
 
-    return Val_unit;
+    CAMLreturn(Val_unit);
 }
 
 CAMLprim value
