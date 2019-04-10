@@ -59,6 +59,7 @@ module Rotation : Animation.T =
     let frames =
       Flow.iterate update_state init_state
       |> Flow.map render_state
+      |> Flow.take 100
   end
 
 let () = Animation.load (module Rotation : Animation.T)
