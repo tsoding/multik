@@ -22,7 +22,7 @@ external draw_text : t -> Vec2.t -> Font.t -> string -> unit = "multik_cairo_dra
 external boundary_text: t -> Vec2.t -> Font.t -> string -> Vec2.t =
   "multik_cairo_boundary_text"
 external fill_chess_pattern : t -> unit = "multik_fill_chess_pattern"
-external transform : t -> Cairo_matrix.t -> unit = "multik_cairo_transform"
+external transform : t -> Mat3x3.t -> unit = "multik_cairo_transform"
 
 let with_context (width, height: int * int) (block: t -> 'a): 'a =
   let context = make width height in
