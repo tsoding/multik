@@ -351,3 +351,22 @@ multik_cairo_save_to_png(value context_value, value filename)
 
     return Val_unit;
 }
+
+void mat_ocaml_to_cairo(value input, cairo_matrix_t *output);
+
+CAMLprim value
+multik_cairo_transform(value context_value, value matrix_tuple)
+{
+    CAMLparam2(context_value, matrix_tuple);
+    const struct Context *context = (struct Context *)context_value;
+
+    if (context == NULL) {
+        caml_failwith("Context is NULL!");
+    }
+
+    cairo_matrix_t matrix;
+    mat_ocaml_to_cairo(matrix_tuple, &matrix);
+    cairo_transform(context->context, &matrix);
+
+    CAMLreturn(Val_unit);
+}

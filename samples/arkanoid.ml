@@ -16,14 +16,17 @@ module Arkanoid : Animation.T =
 
     let resolution = (1366, 768)
 
+    let obj (x, y: Vec2.t): Picture.t =
+      Picture.circle radius
+      |> (Color.rgb 0.8 0.1 0.8 |> Picture.color)
+      |> Picture.scale (1.0, 1.0)
+      |> Picture.translate (x, y)
+
     let render state =
-      let (x, y) = state.position in
       let (w, h) = resolution in
       [ Picture.rect (float_of_int w, float_of_int h)
         |> (Color.rgb 0.1 0.1 0.1 |> Picture.color)
-      ; Picture.circle radius
-        |> (Color.rgb 0.1 0.1 0.8 |> Picture.color)
-        |> Picture.translate (x, y)
+      ; obj state.position
       ] |> Picture.compose
 
     let wall_collision (state: t): t =
