@@ -53,7 +53,10 @@ let render (animation_path: string) (output_filename: string) (config: render_co
   let n = A.frames |> Flow.length in
   let dirpath = temp_dir "multik" "frames" in
   Printf.printf "Rendering frames to %s\n" dirpath;
-  Cairo.with_context A.resolution
+  let (width, height) = A.resolution in
+  let scaled_resolution = ((float_of_int width *. config.scaling)  |> floor |> int_of_float,
+                           (float_of_int height *. config.scaling) |> floor |> int_of_float) in
+  Cairo.with_context scaled_resolution
     (fun c ->
       A.frames
       |> Flow.map (Picture.scale (Vec2.of_float config.scaling))
