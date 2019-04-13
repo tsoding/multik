@@ -42,8 +42,12 @@ type render_config_t =
     scaling : float;
   }
 
+let string_of_render_config (config: render_config_t): string =
+  Printf.sprintf "CONFIG:\n  SCALING: %f\n" config.scaling
+
 (* TODO(#40): if the animation is infinite the rendering will be infinite *)
 let render (animation_path: string) (output_filename: string) (config: render_config_t): unit =
+  string_of_render_config config |> print_endline;
   Dynlink.loadfile(animation_path);
   let module A = (val Animation.get_current () : Animation.T) in
   let n = A.frames |> Flow.length in
