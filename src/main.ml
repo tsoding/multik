@@ -40,17 +40,26 @@ let rec rmdir_rec (path: string): unit =
 type render_config_t =
   {
     scaling : float;
+    fps_scaling: float;
   }
 
 let string_of_render_config (config: render_config_t): string =
-  Printf.sprintf "CONFIG:\n  SCALING: %f\n" config.scaling
+  Printf.sprintf "CONFIG:\n  SCALING: %f\n  FPS_SCALING: %f\n" config.scaling config.fps_scaling
+
+(* TODO(#95): scale_fps is not implemented *)
+let scale_fps (src_fps: int) (dest_fps: int) (frames: 'a Flow.t): 'a Flow.t =
+  frames
 
 (* TODO(#40): if the animation is infinite the rendering will be infinite *)
 let render (animation_path: string) (output_filename: string) (config: render_config_t): unit =
   string_of_render_config config |> print_endline;
   Dynlink.loadfile(animation_path);
   let module A = (val Animation.get_current () : Animation.T) in
-  let n = A.frames |> Flow.length in
+  let scaled_fps = A.fps |> float_of_int |> ( *. ) config.fps_scaling |> int_of_float in
+  let scaled_frames = A.frames
+                      |> scale_fps A.fps scaled_fps
+                      |> Flow.map (Picture.scale (Vec2.of_float config.scaling)) in
+  let n = scaled_frames |> Flow.length in
   let dirpath = temp_dir "multik" "frames" in
   Printf.printf "Rendering frames to %s\n" dirpath;
   let (width, height) = A.resolution in
@@ -58,8 +67,7 @@ let render (animation_path: string) (output_filename: string) (config: render_co
                            (float_of_int height *. config.scaling) |> floor |> int_of_float) in
   Cairo.with_context scaled_resolution
     (fun c ->
-      A.frames
-      |> Flow.map (Picture.scale (Vec2.of_float config.scaling))
+      scaled_frames
       |> Flow.zip (Flow.from 0)
       |> Flow.iter (fun (index, picture) ->
              let filename = dirpath
@@ -72,7 +80,7 @@ let render (animation_path: string) (output_filename: string) (config: render_co
                 print_string "\r";
                 flush stdout));
   print_endline "";
-  let _ = compose_video_file dirpath A.fps output_filename
+  let _ = compose_video_file dirpath scaled_fps output_filename
   in rmdir_rec dirpath
 
 let preview (animation_path: string) =
@@ -125,10 +133,13 @@ let preview (animation_path: string) =
 (* TODO(#93): flags override each other in a reversed order *)
 let rec render_config_of_args (args: string list): render_config_t =
   match args with
-  | [] -> { scaling = 1.0 }
+  | [] -> { scaling = 1.0; fps_scaling = 1.0 }
   | "--scale" :: factor :: rest_args ->
      { (render_config_of_args rest_args) with
        scaling = float_of_string factor }
+  | "--fps-scale" :: fps_factor :: rest_args ->
+     { (render_config_of_args rest_args) with
+       fps_scaling = float_of_string fps_factor }
   | unknown_flag :: _ ->
      Printf.sprintf "Unknown flag: %s" unknown_flag |> failwith
 
@@ -142,6 +153,10 @@ let () =
      render_config_of_args args
      |> render animation_path output_filename
   | name :: "render" :: _ ->
-     Printf.fprintf stderr "Using: %s render <animation-path> <output-filename> [--scale <factor>]" name
+    (*
+     * TODO(#96): multik does not scale to an absolute resolution
+     * It should support both relative and absolute ones.
+     *)
+     Printf.fprintf stderr "Using: %s render <animation-path> <output-filename> [--scale <factor>] [--fps-scale <fps-factor>]" name
   | name :: _ -> Printf.fprintf stderr "Using: %s <preview|render>" name
   | _ -> Printf.fprintf stderr "Using: <program> <preview|render>"
