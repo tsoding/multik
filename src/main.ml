@@ -115,8 +115,15 @@ let preview (animation_path: string) =
     Watcher.free ();
     Console.free ()
 
-(* TODO: render_config_of_args is not implemented *)
-let render_config_of_args (args: string list): render_config_t = { scaling = 1.0 }
+(* TODO: flags override each other in a reversed order *)
+let rec render_config_of_args (args: string list): render_config_t =
+  match args with
+  | [] -> { scaling = 1.0 }
+  | "--scale" :: factor :: rest_args ->
+     { (render_config_of_args rest_args) with
+       scaling = float_of_string factor }
+  | unknown_flag :: _ ->
+     Printf.sprintf "Unknown flag: %s" unknown_flag |> failwith
 
 let () =
   match Sys.argv |> Array.to_list with
