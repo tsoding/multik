@@ -46,7 +46,7 @@ type render_config_t =
 let string_of_render_config (config: render_config_t): string =
   Printf.sprintf "CONFIG:\n  SCALING: %f\n  FPS_SCALING: %f\n" config.scaling config.fps_scaling
 
-(* TODO: scale_fps is not implemented *)
+(* TODO(#95): scale_fps is not implemented *)
 let scale_fps (src_fps: int) (dest_fps: int) (frames: 'a Flow.t): 'a Flow.t =
   frames
 
