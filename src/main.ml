@@ -37,8 +37,13 @@ let rec rmdir_rec (path: string): unit =
         Unix.rmdir path)
   else Sys.remove path
 
+type render_config_t =
+  {
+    scaling : float;
+  }
+
 (* TODO(#40): if the animation is infinite the rendering will be infinite *)
-let render (animation_path: string) (output_filename): unit =
+let render (animation_path: string) (output_filename: string) (config: render_config_t): unit =
   Dynlink.loadfile(animation_path);
   let module A = (val Animation.get_current () : Animation.T) in
   let n = A.frames |> Flow.length in
@@ -47,6 +52,7 @@ let render (animation_path: string) (output_filename): unit =
   Cairo.with_context A.resolution
     (fun c ->
       A.frames
+      |> Flow.map (Picture.scale (Vec2.of_float config.scaling))
       |> Flow.zip (Flow.from 0)
       |> Flow.iter (fun (index, picture) ->
              let filename = dirpath
@@ -109,15 +115,19 @@ let preview (animation_path: string) =
     Watcher.free ();
     Console.free ()
 
+(* TODO: render_config_of_args is not implemented *)
+let render_config_of_args (args: string list): render_config_t = { scaling = 1.0 }
+
 let () =
   match Sys.argv |> Array.to_list with
   | _ :: "preview" :: animation_path :: _ ->
      preview animation_path
   | name :: "preview" :: _ ->
      Printf.fprintf stderr "Using %s preview <animation-path>" name
-  | _ :: "render" :: animation_path :: output_filename :: _ ->
-     render animation_path output_filename
+  | _ :: "render" :: animation_path :: output_filename :: args ->
+     render_config_of_args args
+     |> render animation_path output_filename
   | name :: "render" :: _ ->
-     Printf.fprintf stderr "Using: %s render <animation-path> <output-filename>" name
+     Printf.fprintf stderr "Using: %s render <animation-path> <output-filename> [--scale <factor>]" name
   | name :: _ -> Printf.fprintf stderr "Using: %s <preview|render>" name
   | _ -> Printf.fprintf stderr "Using: <program> <preview|render>"
