@@ -122,7 +122,7 @@ let preview (animation_path: string) =
     Watcher.free ();
     Console.free ()
 
-(* TODO: flags override each other in a reversed order *)
+(* TODO(#93): flags override each other in a reversed order *)
 let rec render_config_of_args (args: string list): render_config_t =
   match args with
   | [] -> { scaling = 1.0 }
