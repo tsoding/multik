@@ -154,7 +154,7 @@ let () =
      |> render animation_path output_filename
   | name :: "render" :: _ ->
     (*
-     * TODO: multik does not scale to an absolute resolution
+     * TODO(#96): multik does not scale to an absolute resolution
      * It should support both relative and absolute ones.
      *)
      Printf.fprintf stderr "Using: %s render <animation-path> <output-filename> [--scale <factor>] [--fps-scale <fps-factor>]" name
