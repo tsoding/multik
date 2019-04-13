@@ -7,6 +7,8 @@ let as_string (x, y: t): string =
 let of_ints (x, y : int * int) : t =
   (float_of_int x, float_of_int y)
 
+let of_float (x: float) : t = x, x
+
 let homo (x, y: float * float): homo_t =
   (x, y, 1.0)
 

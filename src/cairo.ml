@@ -30,7 +30,7 @@ let with_texture (texture: SdlTexture.t) (block: t -> 'a): 'a =
   with e -> free context;
             raise e
 
-(* TODO: Boundary calculcation is probably broken *)
+(* TODO(#92): Boundary calculcation is probably broken *)
 let rec boundary (context: t) (p: Picture.t): Rect.t =
   match p with
   | Rect (w, h) -> (0.0, 0.0, w, h)

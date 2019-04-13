@@ -37,16 +37,29 @@ let rec rmdir_rec (path: string): unit =
         Unix.rmdir path)
   else Sys.remove path
 
+type render_config_t =
+  {
+    scaling : float;
+  }
+
+let string_of_render_config (config: render_config_t): string =
+  Printf.sprintf "CONFIG:\n  SCALING: %f\n" config.scaling
+
 (* TODO(#40): if the animation is infinite the rendering will be infinite *)
-let render (animation_path: string) (output_filename): unit =
+let render (animation_path: string) (output_filename: string) (config: render_config_t): unit =
+  string_of_render_config config |> print_endline;
   Dynlink.loadfile(animation_path);
   let module A = (val Animation.get_current () : Animation.T) in
   let n = A.frames |> Flow.length in
   let dirpath = temp_dir "multik" "frames" in
   Printf.printf "Rendering frames to %s\n" dirpath;
-  Cairo.with_context A.resolution
+  let (width, height) = A.resolution in
+  let scaled_resolution = ((float_of_int width *. config.scaling)  |> floor |> int_of_float,
+                           (float_of_int height *. config.scaling) |> floor |> int_of_float) in
+  Cairo.with_context scaled_resolution
     (fun c ->
       A.frames
+      |> Flow.map (Picture.scale (Vec2.of_float config.scaling))
       |> Flow.zip (Flow.from 0)
       |> Flow.iter (fun (index, picture) ->
              let filename = dirpath
@@ -109,15 +122,26 @@ let preview (animation_path: string) =
     Watcher.free ();
     Console.free ()
 
+(* TODO(#93): flags override each other in a reversed order *)
+let rec render_config_of_args (args: string list): render_config_t =
+  match args with
+  | [] -> { scaling = 1.0 }
+  | "--scale" :: factor :: rest_args ->
+     { (render_config_of_args rest_args) with
+       scaling = float_of_string factor }
+  | unknown_flag :: _ ->
+     Printf.sprintf "Unknown flag: %s" unknown_flag |> failwith
+
 let () =
   match Sys.argv |> Array.to_list with
   | _ :: "preview" :: animation_path :: _ ->
      preview animation_path
   | name :: "preview" :: _ ->
      Printf.fprintf stderr "Using %s preview <animation-path>" name
-  | _ :: "render" :: animation_path :: output_filename :: _ ->
-     render animation_path output_filename
+  | _ :: "render" :: animation_path :: output_filename :: args ->
+     render_config_of_args args
+     |> render animation_path output_filename
   | name :: "render" :: _ ->
-     Printf.fprintf stderr "Using: %s render <animation-path> <output-filename>" name
+     Printf.fprintf stderr "Using: %s render <animation-path> <output-filename> [--scale <factor>]" name
   | name :: _ -> Printf.fprintf stderr "Using: %s <preview|render>" name
   | _ -> Printf.fprintf stderr "Using: <program> <preview|render>"
