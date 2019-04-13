@@ -1,4 +1,4 @@
-(* TODO: generalize vec2 with polymorphic parameter *)
+(* TODO(#97): generalize vec2 with polymorphic parameter *)
 type t = float * float
 type homo_t = float * float * float
 
