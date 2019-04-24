@@ -13,7 +13,11 @@ let empty_animation_frame (screen_width, screen_height) =
                (float_of_int screen_width *. 0.5 -. label_width *. 0.5, float_of_int screen_height *. 0.5 -. label_height *. 0.5)))
 
 let compose_video_file (dirpath: string) (fps: int) (output_filename: string) (flags: string list): Unix.process_status =
-  Printf.sprintf "ffmpeg -y -framerate %d -i %s/%%d.png %s %s" fps dirpath output_filename (flags |> String.concat " ")
+  let cli =
+    Printf.sprintf "ffmpeg -y -framerate %d -i %s/%%d.png %s %s" fps dirpath output_filename (flags |> String.concat " ")
+  in
+  print_endline cli;
+  cli
   |> Unix.open_process_in
   |> Unix.close_process_in
 
@@ -154,10 +158,6 @@ let preview (animation_path: string) =
     Console.free ()
 
 (* TODO(#93): flags override each other in a reversed order *)
-(*
- * TODO(#103): render_config_of_args does not parse --ffmpeg
- * Blocked by #93
- *)
 let rec render_config_of_args (args: string list): render_config_t =
   match args with
   | [] -> { scaling = 1.0; fps_scaling = 1.0; ffmpeg_flags = [] }
@@ -167,6 +167,12 @@ let rec render_config_of_args (args: string list): render_config_t =
   | "--fps-scale" :: fps_factor :: rest_args ->
      { (render_config_of_args rest_args) with
        fps_scaling = float_of_string fps_factor }
+  | "--ffmpeg" :: rest_args ->
+     {
+       scaling = 1.0;
+       fps_scaling = 1.0;
+       ffmpeg_flags = rest_args
+     }
   | unknown_flag :: _ ->
      Printf.sprintf "Unknown flag: %s" unknown_flag |> failwith
 
