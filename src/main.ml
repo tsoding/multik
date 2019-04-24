@@ -12,8 +12,8 @@ let empty_animation_frame (screen_width, screen_height) =
           |> Picture.translate
                (float_of_int screen_width *. 0.5 -. label_width *. 0.5, float_of_int screen_height *. 0.5 -. label_height *. 0.5)))
 
-let compose_video_file (dirpath: string) (fps: int) (output_filename: string): Unix.process_status =
-  Printf.sprintf "ffmpeg -y -framerate %d -i %s/%%d.png %s" fps dirpath output_filename
+let compose_video_file (dirpath: string) (fps: int) (output_filename: string) (flags: string list): Unix.process_status =
+  Printf.sprintf "ffmpeg -y -framerate %d -i %s/%%d.png %s %s" fps dirpath output_filename (flags |> String.concat " ")
   |> Unix.open_process_in
   |> Unix.close_process_in
 
@@ -41,10 +41,14 @@ type render_config_t =
   {
     scaling : float;
     fps_scaling: float;
+    ffmpeg_flags: string list;
   }
 
 let string_of_render_config (config: render_config_t): string =
-  Printf.sprintf "CONFIG:\n  SCALING: %f\n  FPS_SCALING: %f\n" config.scaling config.fps_scaling
+  Printf.sprintf "CONFIG:\n  SCALING: %f\n  FPS_SCALING: %f\n  FFMPEG_FLAGS: %s\n"
+    config.scaling
+    config.fps_scaling
+    (config.ffmpeg_flags |> String.concat " ")
 
 let scale_fps (src_fps: int) (dest_fps: int) (frames: 'a Flow.t): 'a Flow.t =
   let src_dt = 1.0 /. float_of_int src_fps in
@@ -59,6 +63,12 @@ let scale_fps (src_fps: int) (dest_fps: int) (frames: 'a Flow.t): 'a Flow.t =
   in if src_fps != dest_fps
      then interpolate_frames 0.0 frames
      else frames
+
+let explain_status (status: Unix.process_status): string =
+  match status with
+  | Unix.WEXITED code -> Printf.sprintf "exited with %d" code
+  | Unix.WSIGNALED signal -> Printf.sprintf "was killed by a signal %d" signal
+  | Unix.WSTOPPED signal -> Printf.sprintf "was stopped by a signal %d" signal
 
 (* TODO(#40): if the animation is infinite the rendering will be infinite *)
 let render (animation_path: string) (output_filename: string) (config: render_config_t): unit =
@@ -90,8 +100,10 @@ let render (animation_path: string) (output_filename: string) (config: render_co
                 print_string "\r";
                 flush stdout));
   print_endline "";
-  let _ = compose_video_file dirpath scaled_fps output_filename
-  in rmdir_rec dirpath
+  compose_video_file dirpath scaled_fps output_filename config.ffmpeg_flags
+  |> explain_status
+  |> Printf.printf "ffmpeg %s";
+  rmdir_rec dirpath
 
 let preview (animation_path: string) =
   let rec loop (resolution: int * int) (delta_time: float) (frames: Picture.t Flow.t): unit =
@@ -142,9 +154,13 @@ let preview (animation_path: string) =
     Console.free ()
 
 (* TODO(#93): flags override each other in a reversed order *)
+(*
+ * TODO: render_config_of_args does not parse --ffmpeg
+ * Blocked by #93
+ *)
 let rec render_config_of_args (args: string list): render_config_t =
   match args with
-  | [] -> { scaling = 1.0; fps_scaling = 1.0 }
+  | [] -> { scaling = 1.0; fps_scaling = 1.0; ffmpeg_flags = [] }
   | "--scale" :: factor :: rest_args ->
      { (render_config_of_args rest_args) with
        scaling = float_of_string factor }
@@ -168,6 +184,6 @@ let () =
      * TODO(#96): multik does not scale to an absolute resolution
      * It should support both relative and absolute ones.
      *)
-     Printf.fprintf stderr "Using: %s render <animation-path> <output-filename> [--scale <factor>] [--fps-scale <fps-factor>]" name
+     Printf.fprintf stderr "Using: %s render <animation-path> <output-filename> [--scale <factor>] [--fps-scale <fps-factor>] [--ffmpeg <additional-ffmpeg-arguments>]" name
   | name :: _ -> Printf.fprintf stderr "Using: %s <preview|render>" name
   | _ -> Printf.fprintf stderr "Using: <program> <preview|render>"
