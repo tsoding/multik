@@ -155,7 +155,7 @@ let preview (animation_path: string) =
 
 (* TODO(#93): flags override each other in a reversed order *)
 (*
- * TODO: render_config_of_args does not parse --ffmpeg
+ * TODO(#103): render_config_of_args does not parse --ffmpeg
  * Blocked by #93
  *)
 let rec render_config_of_args (args: string list): render_config_t =
