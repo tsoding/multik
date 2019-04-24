@@ -6,10 +6,15 @@ and 'a t =
 
 let nil: 'a t = { flow = lazy Nil }
 
-let uncons (xs: 'a t): ('a * 'a t) option =
+let cons (x: 'a Lazy.t) (xs: 'a t): 'a t =
+  {
+    flow = lazy (Cons (x, xs))
+  }
+
+let uncons (xs: 'a t): ('a Lazy.t * 'a t) option =
   match Lazy.force xs.flow with
   | Nil -> None
-  | Cons (x, xs) -> Some (Lazy.force x, xs)
+  | Cons (x, xs) -> Some (x, xs)
 
 let is_nil (xs : 'a t): bool =
   match Lazy.force xs.flow with
