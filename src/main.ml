@@ -46,9 +46,19 @@ type render_config_t =
 let string_of_render_config (config: render_config_t): string =
   Printf.sprintf "CONFIG:\n  SCALING: %f\n  FPS_SCALING: %f\n" config.scaling config.fps_scaling
 
-(* TODO(#95): scale_fps is not implemented *)
 let scale_fps (src_fps: int) (dest_fps: int) (frames: 'a Flow.t): 'a Flow.t =
-  frames
+  let src_dt = 1.0 /. float_of_int src_fps in
+  let dest_dt = 1.0 /. float_of_int dest_fps in
+  let rec interpolate_frames (t: float) (frames: 'a Flow.t): 'a Flow.t =
+    match Flow.uncons frames with
+    | Some (x, xs) ->
+       if t < src_dt
+       then Flow.cons x (interpolate_frames (t +. dest_dt) frames)
+       else interpolate_frames (t -. src_dt) xs
+    | None -> Flow.nil
+  in if src_fps != dest_fps
+     then interpolate_frames 0.0 frames
+     else frames
 
 (* TODO(#40): if the animation is infinite the rendering will be infinite *)
 let render (animation_path: string) (output_filename: string) (config: render_config_t): unit =
@@ -100,6 +110,7 @@ let preview (animation_path: string) =
                    let rx, _ = resolution in
                    let s = vx /. float_of_int rx in
                    frame
+                   |> Lazy.force
                    |> Picture.scale (s, s)
                    |> Console.render_picture;
                    Console.present ();
