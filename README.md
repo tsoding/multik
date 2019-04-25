@@ -36,7 +36,7 @@ $ sudo apt-get install gcc ocaml libsdl2-dev libcairo2-dev
 $ nix-shell        # For NixOS
 $ make
 $ ./multik preview samples/arkanoid.cmo
-$ ./multik render samples/arkanoid.cmo out/
+$ ./multik render samples/arkanoid.cmo arkanoid.mp4
 ```
 
 ## Support
