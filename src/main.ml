@@ -137,12 +137,6 @@ let preview (animation_path: string) =
                    |> render_picture;
                    Console.present ();
                    let frame_work = Sys.time () -. frame_begin in
-                   (*
-                    * TODO(#23): The animation is replayed slower than it supposed to be
-                    *   1. Create animation with 100 frames and 30 fps
-                    *   2. Expected animation should last ~3 seconds
-                    *   3. Observed animation lasts >6 seconds
-                    *)
                    (delta_time -. frame_work) |> max 0.0 |> Thread.delay;
                    loop resolution delta_time rest_frames
                 | None -> [empty_animation_frame resolution]
