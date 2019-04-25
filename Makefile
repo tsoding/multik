@@ -15,21 +15,9 @@ multik: $(OBJS) $(CORE_MLS) src/main.ml
 		-ccopt "$(CFLAGS)" \
 		-cclib "$(LIBS)" \
 
-src/console_impl.o: src/console_impl.c
-	ocamlc -c -ccopt "$(CFLAGS)" src/console_impl.c -cclib "$(LIBS)"
-	mv console_impl.o src/
-
-src/watcher_impl.o: src/watcher_impl.c
-	ocamlc -c -ccopt "$(CFLAGS)" src/watcher_impl.c -cclib "$(LIBS)"
-	mv watcher_impl.o src/
-
-src/cairo_impl.o: src/cairo_impl.c
-	ocamlc -c -ccopt "$(CFLAGS)" src/cairo_impl.c -cclib "$(LIBS)"
-	mv cairo_impl.o src/
-
-src/cairo_matrix_impl.o: src/cairo_matrix_impl.c
-	ocamlc -c -ccopt "$(CFLAGS)" src/cairo_matrix_impl.c -cclib "$(LIBS)"
-	mv cairo_matrix_impl.o src/
+src/%.o: src/%.c
+	ocamlc -c -ccopt "$(CFLAGS)" $< -cclib "$(LIBS)"
+	mv $(notdir $@) src/
 
 samples/%.cmo: samples/%.ml $(CORE_MLS)
 	ocamlc -I ./src/ -c $(CORE_MLS) $<
