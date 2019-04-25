@@ -24,7 +24,7 @@ with nix-shell command:
 $ nix-shell
 ```
 
-## Ubuntu
+### Ubuntu
 
 ```console
 $ sudo apt-get install gcc ocaml libsdl2-dev libcairo2-dev
