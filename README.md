@@ -39,6 +39,13 @@ $ ./multik preview samples/arkanoid.cmo
 $ ./multik render samples/arkanoid.cmo out/
 ```
 
+## Support
+
+You can support my work via
+
+- Twitch channel: https://www.twitch.tv/subs/tsoding
+- Patreon: https://www.patreon.com/tsoding
+
 [OCaml]: http://www.ocaml.org/
 [gcc]: https://gcc.gnu.org/
 [SDL2]: https://www.libsdl.org/
