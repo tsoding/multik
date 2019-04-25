@@ -110,6 +110,12 @@ let render (animation_path: string) (output_filename: string) (config: render_co
   rmdir_rec dirpath
 
 let preview (animation_path: string) =
+  let render_picture (p: Picture.t): unit =
+    Cairo.with_texture (Console.texture ())
+      (fun c ->
+        Cairo.fill_chess_pattern c;
+        Cairo.render c p)
+  in
   let rec loop (resolution: int * int) (delta_time: float) (frames: Picture.t Flow.t): unit =
     if not (Console.should_quit ())
     then (if (Watcher.is_file_modified ())
@@ -128,7 +134,7 @@ let preview (animation_path: string) =
                    frame
                    |> Lazy.force
                    |> Picture.scale (s, s)
-                   |> Console.render_picture;
+                   |> render_picture;
                    Console.present ();
                    let frame_work = Sys.time () -. frame_begin in
                    (*
