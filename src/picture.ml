@@ -1,4 +1,3 @@
-(* TODO(#72): Picture doesn't have Rotate operation *)
 type t = Nothing
        | Color of Color.t * t
        | Translate of (float * float) * t
