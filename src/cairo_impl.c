@@ -167,44 +167,6 @@ multik_cairo_free(value context_value)
 }
 
 CAMLprim value
-multik_fill_chess_pattern(value context_value)
-{
-    struct Context *context = (struct Context *) context_value;
-
-    if (context == NULL) {
-        caml_failwith("Context is NULL");
-    }
-
-    double x1, y1, x2, y2;
-    cairo_clip_extents(context->context, &x1, &y1, &x2, &y2);
-    const double w = x2 - x1;
-    const double h = y2 - y1;
-
-    const double cell_size = 12.0;
-    const double rows = (h + cell_size) / cell_size;
-    const double columns = (w + cell_size) / cell_size;
-
-
-    for (int y = 0; y < rows; ++y) {
-        for (int x = 0; x < columns; ++x) {
-            if ((x + y) % 2 == 0) {
-                cairo_set_source_rgba(context->context, 0.25f, 0.25f, 0.25f, 1.0f);
-            } else {
-                cairo_set_source_rgba(context->context, 0.5f, 0.5f, 0.5f, 1.0f);
-            }
-
-            cairo_rectangle(
-                context->context,
-                x * cell_size, y * cell_size,
-                cell_size, cell_size);
-            cairo_fill(context->context);
-        }
-    }
-
-    return Val_unit;
-}
-
-CAMLprim value
 multik_cairo_set_fill_color(value context_value, value color)
 {
     CAMLparam2(context_value, color);

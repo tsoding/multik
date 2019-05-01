@@ -26,3 +26,5 @@ multik.opt
 multik
 out/
 *.mp4
+
+gmon.out

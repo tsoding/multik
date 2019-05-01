@@ -9,7 +9,6 @@ external fill_circle : t -> Vec2.t -> float -> unit = "multik_cairo_fill_circle"
 external draw_text : t -> Vec2.t -> Font.t -> string -> unit = "multik_cairo_draw_text"
 external boundary_text: t -> Vec2.t -> Font.t -> string -> Vec2.t =
   "multik_cairo_boundary_text"
-external fill_chess_pattern : t -> unit = "multik_fill_chess_pattern"
 external transform : t -> Cairo_matrix.t -> unit = "multik_cairo_transform"
 
 let with_context (width, height: int * int) (block: t -> 'a): 'a =
@@ -65,17 +64,19 @@ let rec boundary (context: t) (p: Picture.t): Rect.t =
      in (fx *. x, fy *. fy, fx *. w, fy *. h)
   | Rotate (_, p) -> boundary context p
 
-let rec render_with_context (context: t) (p: Picture.t): unit =
+(* TODO(#110): can we rewrite render_with_context completely in C *)
+let rec render_with_context (current_color: Color.t) (context: t) (p: Picture.t): unit =
   match p with
   | Nothing -> ()
   | Rect (w0, h0) ->
      Rect.from_points (0.0, 0.0) (w0, h0)
      |> fill_rect context
   | Compose ps ->
-     List.iter (render_with_context context) ps
-  | Color (color, p) ->
-     set_fill_color context color;
-     render_with_context context p
+     List.iter (render_with_context current_color context) ps
+  | Color (next_color, p) ->
+     set_fill_color context next_color;
+     render_with_context next_color context p;
+     set_fill_color context current_color
   | Circle (radius) ->
      fill_circle context (0.0, 0.0) radius
   | Text (font, text) ->
@@ -84,21 +85,21 @@ let rec render_with_context (context: t) (p: Picture.t): unit =
       p
       |> boundary context
       |> template
-      |> render_with_context context
+      |> render_with_context current_color context
   | Translate (position, p) ->
      Cairo_matrix.translate position |> transform context;
-     render_with_context context p;
+     render_with_context current_color context p;
      Cairo_matrix.translate position |> Cairo_matrix.invert |> transform context
   | Scale (scaling, p) ->
      Cairo_matrix.scale scaling |> transform context;
-     render_with_context context p;
+     render_with_context current_color context p;
      Cairo_matrix.scale scaling |> Cairo_matrix.invert |> transform context
   | Rotate (angle, p) ->
      Cairo_matrix.rotate angle |> transform context;
-     render_with_context context p;
+     render_with_context current_color context p;
      Cairo_matrix.rotate angle |> Cairo_matrix.invert |> transform context
 
 let render (context: t) (p: Picture.t) =
-  render_with_context context p
+  render_with_context Color.black context p
 
 external save_to_png : t -> string -> unit = "multik_cairo_save_to_png"
