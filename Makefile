@@ -23,6 +23,8 @@ SAMPLES=samples/arkanoid.cmo \
 
 all: multik $(SAMPLES)
 
+# TODO: introduce profiling mode
+
 multik: $(OBJS) $(CORE_MLS) src/main.ml
 	ocamlfind ocamlc -linkpkg -package threads,dynlink -thread \
 		-custom -I ./src/ \
