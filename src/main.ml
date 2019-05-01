@@ -109,6 +109,12 @@ let render (animation_path: string) (output_filename: string) (config: render_co
   |> Printf.printf "ffmpeg %s";
   rmdir_rec dirpath
 
+let shadow (p: Picture.t): Picture.t =
+  Picture.compose [ p
+                    |> Picture.color Color.black
+                    |> Picture.translate (3.0, 3.0)
+                  ; p ]
+
 let preview (animation_path: string) =
   let render_picture (p: Picture.t): unit =
     Cairo.with_texture (Console.texture ())
@@ -116,33 +122,38 @@ let preview (animation_path: string) =
         Cairo.fill_chess_pattern c;
         Cairo.render c p)
   in
-  let rec loop (resolution: int * int) (delta_time: float) (frames: Picture.t Flow.t): unit =
+  let rec loop (resolution: int * int) (delta_time: float) (current_fps: int) (frames: Picture.t Flow.t): unit =
     if not (Console.should_quit ())
     then (if (Watcher.is_file_modified ())
           then (print_endline "reloading";
                 Dynlink.loadfile(animation_path);
                 let module Reload = (val Animation.get_current () : Animation.T) in
                 if Flow.is_nil Reload.frames
-                then loop Reload.resolution delta_time Flow.nil
-                else Reload.frames |> Flow.cycle |> loop Reload. resolution delta_time)
+                then loop Reload.resolution delta_time current_fps Flow.nil
+                else Reload.frames |> Flow.cycle |> loop Reload.resolution delta_time current_fps)
           else (let frame_begin = Sys.time () in
                 match Flow.uncons frames with
                 | Some (frame, rest_frames) ->
                    let (_, _, vx, _) = Console.viewport () in
                    let rx, _ = resolution in
                    let s = vx /. float_of_int rx in
-                   frame
-                   |> Lazy.force
+                   Picture.compose [ Lazy.force frame
+                                   ; Printf.sprintf "FPS: %d" current_fps
+                                     |> Picture.text (Font.make "Sans" 100.0)
+                                     |> shadow
+                                     |> Picture.translate (0.0, 100.0)
+                                     |> Picture.color Color.white ]
                    |> Picture.scale (s, s)
                    |> render_picture;
                    Console.present ();
                    let frame_work = Sys.time () -. frame_begin in
                    (delta_time -. frame_work) |> max 0.0 |> Thread.delay;
-                   loop resolution delta_time rest_frames
+                   let next_fps = 1.0 /. (max frame_work delta_time) in
+                   loop resolution delta_time (int_of_float ((next_fps +. float_of_int current_fps) /. 2.0)) rest_frames
                 | None -> [empty_animation_frame resolution]
                           |> Flow.of_list
                           |> Flow.cycle
-                          |> loop resolution delta_time))
+                          |> loop resolution delta_time current_fps))
     else ()
   in
     Dynlink.loadfile(animation_path);
@@ -152,8 +163,8 @@ let preview (animation_path: string) =
     Console.init width height;
     Watcher.init animation_path;
     if Flow.is_nil A.frames
-    then loop A.resolution delta_time Flow.nil
-    else A.frames |> Flow.cycle |> loop A.resolution delta_time;
+    then loop A.resolution delta_time 0 Flow.nil
+    else A.frames |> Flow.cycle |> loop A.resolution delta_time 0;
     Watcher.free ();
     Console.free ()
 
