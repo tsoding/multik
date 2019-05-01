@@ -64,6 +64,7 @@ let rec boundary (context: t) (p: Picture.t): Rect.t =
      in (fx *. x, fy *. fy, fx *. w, fy *. h)
   | Rotate (_, p) -> boundary context p
 
+(* TODO: can we rewrite render_with_context completely in C *)
 let rec render_with_context (current_color: Color.t) (context: t) (p: Picture.t): unit =
   match p with
   | Nothing -> ()
