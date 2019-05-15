@@ -62,4 +62,4 @@ module Rotation : Animation.T =
       |> Flow.take 100
   end
 
-let () = Animation.load (module Rotation : Animation.T)
+let () = Hot.load (module Rotation : Animation.T)

@@ -3,8 +3,11 @@ with import <nixpkgs> {}; {
         name = "cairoprobe-env";
         buildInputs = [ stdenv
                         gcc
+                        gdb
+                        gprof
                         ocaml
                         ocamlPackages.findlib
+                        ocamlPackages.camlp4
                         pkgconfig
                         cairo
                         SDL2

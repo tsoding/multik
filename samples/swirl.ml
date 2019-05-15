@@ -42,4 +42,4 @@ module Swirl : Animation.T =
 
   end
 
-let () = Animation.load (module Swirl : Animation.T)
+let () = Hot.load (module Swirl : Animation.T)
