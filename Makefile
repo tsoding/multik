@@ -1,4 +1,4 @@
-CFLAGS=-Wall -Werror -Wconversion $(shell pkg-config --cflags sdl2 cairo)
+CFLAGS=-Wall -Werror $(shell pkg-config --cflags sdl2 cairo)
 LIBS=$(shell pkg-config --libs sdl2 cairo)
 CORE_MLS=src/flow.ml \
          src/color.ml \

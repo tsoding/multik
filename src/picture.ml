@@ -6,6 +6,7 @@ type t = Nothing
        | Rect of float * float
        | Circle of float
        | Text of Font.t * string
+       | Image of string
        | Compose of t list
        | SizeOf of t * (Rect.t -> t)
 
@@ -37,3 +38,6 @@ let scale (sx, sy: float * float) (p: t): t =
 
 let rotate (angle: float) (p: t): t =
   Rotate (angle, p)
+
+let image (filepath: string): t =
+  Image filepath

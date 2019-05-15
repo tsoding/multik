@@ -7,8 +7,11 @@ external set_fill_color : t -> Color.t -> unit = "multik_cairo_set_fill_color"
 external fill_rect : t -> Rect.t -> unit = "multik_cairo_fill_rect"
 external fill_circle : t -> Vec2.t -> float -> unit = "multik_cairo_fill_circle"
 external draw_text : t -> Vec2.t -> Font.t -> string -> unit = "multik_cairo_draw_text"
+external draw_image : t -> string -> unit = "multik_cairo_draw_image"
 external boundary_text: t -> Vec2.t -> Font.t -> string -> Vec2.t =
   "multik_cairo_boundary_text"
+external boundary_image: string -> Vec2.t =
+  "multik_cairo_boundary_image"
 external transform : t -> Cairo_matrix.t -> unit = "multik_cairo_transform"
 
 let with_context (width, height: int * int) (block: t -> 'a): 'a =
@@ -46,6 +49,7 @@ let rec boundary (context: t) (p: Picture.t): Rect.t =
   | Circle (radius) ->
      (0.0, 0.0, radius *. 2.0, radius *. 2.0)
   | Text (font, text) ->
+     (* TODO(#113): boundary_text should probably have hardcoded position *)
      let (w, h) = boundary_text context (0.0, 0.0) font text
      in (0.0, 0.0, w, h)
   | Color (_, p) ->
@@ -63,6 +67,9 @@ let rec boundary (context: t) (p: Picture.t): Rect.t =
      let (x, y, w, h) = boundary context p
      in (fx *. x, fy *. fy, fx *. w, fy *. h)
   | Rotate (_, p) -> boundary context p
+  | Image filepath ->
+     let (w, h) = boundary_image filepath
+     in (0.0, 0.0, w, h)
 
 (* TODO(#110): can we rewrite render_with_context completely in C *)
 let rec render_with_context (current_color: Color.t) (context: t) (p: Picture.t): unit =
@@ -98,6 +105,8 @@ let rec render_with_context (current_color: Color.t) (context: t) (p: Picture.t)
      Cairo_matrix.rotate angle |> transform context;
      render_with_context current_color context p;
      Cairo_matrix.rotate angle |> Cairo_matrix.invert |> transform context
+  | Image filepath ->
+     draw_image context filepath
 
 let render (context: t) (p: Picture.t) =
   render_with_context Color.black context p
