@@ -49,7 +49,7 @@ let rec boundary (context: t) (p: Picture.t): Rect.t =
   | Circle (radius) ->
      (0.0, 0.0, radius *. 2.0, radius *. 2.0)
   | Text (font, text) ->
-     (* TODO: boundary_text should probably have hardcoded position *)
+     (* TODO(#113): boundary_text should probably have hardcoded position *)
      let (w, h) = boundary_text context (0.0, 0.0) font text
      in (0.0, 0.0, w, h)
   | Color (_, p) ->
