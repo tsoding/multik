@@ -1,5 +1,5 @@
 IFDEF PROFILE THEN
-module HotReload =
+module Hot =
   struct
     let load (module A: Animation.T): unit = ()
   end
