@@ -12,7 +12,7 @@ CORE_MLS=src/flow.ml \
          src/console.ml \
          src/watcher.ml \
          src/animation.ml \
-         src/hotReload.ml
+         src/hot.ml
 OBJS=src/cairo_matrix_impl.o \
 	 src/cairo_impl.o \
 	 src/console_impl.o \

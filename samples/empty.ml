@@ -5,4 +5,4 @@ module Empty : Animation.T =
     let resolution = (800, 600)
   end
 
-let () = HotReload.load (module Empty : Animation.T)
+let () = Hot.load (module Empty : Animation.T)
