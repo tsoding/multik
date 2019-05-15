@@ -324,7 +324,7 @@ multik_cairo_boundary_image(value filepath)
 {
     CAMLparam1(filepath);
     CAMLlocal1(boundary);
-    /* TODO: multik_cairo_boundary_image is not implement */
+    /* TODO(#115): multik_cairo_boundary_image is not implement */
     Store_field(boundary, 0, caml_copy_double(0.0));
     Store_field(boundary, 1, caml_copy_double(0.0));
     CAMLreturn(boundary);
