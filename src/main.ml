@@ -77,8 +77,8 @@ let explain_status (status: Unix.process_status): string =
 (* TODO(#40): if the animation is infinite the rendering will be infinite *)
 let render (animation_path: string) (output_filename: string) (config: render_config_t): unit =
   string_of_render_config config |> print_endline;
-  Dynlink.loadfile(animation_path);
-  let module A = (val Animation.get_current () : Animation.T) in
+  HotReload.loadfile(animation_path);
+  let module A = (val HotReload.get_current () : Animation.T) in
   let scaled_fps = A.fps |> float_of_int |> ( *. ) config.fps_scaling |> int_of_float in
   let scaled_frames = A.frames
                       |> scale_fps A.fps scaled_fps
@@ -124,8 +124,8 @@ let preview (animation_path: string) =
     if not (Console.should_quit ())
     then (if (Watcher.is_file_modified ())
           then (print_endline "reloading";
-                Dynlink.loadfile(animation_path);
-                let module Reload = (val Animation.get_current () : Animation.T) in
+                HotReload.loadfile(animation_path);
+                let module Reload = (val HotReload.get_current () : Animation.T) in
                 if Flow.is_nil Reload.frames
                 then loop Reload.resolution delta_time current_fps Flow.nil
                 else Reload.frames |> Flow.cycle |> loop Reload.resolution delta_time current_fps)
@@ -154,8 +154,8 @@ let preview (animation_path: string) =
                           |> loop resolution delta_time current_fps))
     else ()
   in
-    Dynlink.loadfile(animation_path);
-    let module A = (val Animation.get_current () : Animation.T) in
+    HotReload.loadfile(animation_path);
+    let module A = (val HotReload.get_current () : Animation.T) in
     let (width, height) = A.resolution in
     let delta_time = 1.0 /. (float_of_int A.fps) in
     Console.init width height;

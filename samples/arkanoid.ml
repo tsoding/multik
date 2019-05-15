@@ -65,4 +65,4 @@ module Arkanoid : Animation.T =
       |> Flow.take 200
   end
 
-let () = Animation.load (module Arkanoid : Animation.T)
+let () = HotReload.load (module Arkanoid : Animation.T)
