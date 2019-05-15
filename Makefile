@@ -43,7 +43,7 @@ multik.prof: $(OBJS) $(CORE_MLS) src/main.ml
 		-cclib "$(LIBS)" \
 
 src/%.o: src/%.c
-	ocamlc -c -ccopt "-pg -ggdb $(CFLAGS)" $< -cclib "$(LIBS)"
+	ocamlc -c -ccopt "$(CFLAGS)" $< -cclib "$(LIBS)"
 	mv $(notdir $@) src/
 
 samples/%.cmo: samples/%.ml $(CORE_MLS)
