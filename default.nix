@@ -4,6 +4,7 @@ with import <nixpkgs> {}; {
         buildInputs = [ stdenv
                         gcc
                         gdb
+                        gprof
                         ocaml
                         ocamlPackages.findlib
                         ocamlPackages.camlp4

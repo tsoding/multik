@@ -39,6 +39,15 @@ $ ./multik preview samples/arkanoid.cmo
 $ ./multik render samples/arkanoid.cmo arkanoid.mp4
 ```
 
+## Profiling
+
+```console
+$ make multik.prof
+$ ./multik.prof preview <literally any file>  # you can provide any file, it will be ignored
+                                              # because the animation is baked into the executable
+$ gprof ./multik.prof
+```
+
 ## Support
 
 You can support my work via
