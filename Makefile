@@ -1,4 +1,4 @@
-CFLAGS=-Wall -Werror -Wconversion $(shell pkg-config --cflags sdl2 cairo)
+CFLAGS=-Wall -Werror $(shell pkg-config --cflags sdl2 cairo)
 LIBS=$(shell pkg-config --libs sdl2 cairo)
 CORE_MLS=src/flow.ml \
          src/color.ml \
@@ -43,7 +43,7 @@ multik.prof: $(OBJS) $(CORE_MLS) src/main.ml
 		-cclib "$(LIBS)" \
 
 src/%.o: src/%.c
-	ocamlc -c -ccopt "$(CFLAGS)" $< -cclib "$(LIBS)"
+	ocamlc -c -ccopt "-pg -ggdb $(CFLAGS)" $< -cclib "$(LIBS)"
 	mv $(notdir $@) src/
 
 samples/%.cmo: samples/%.ml $(CORE_MLS)

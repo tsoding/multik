@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <math.h>
+#include <assert.h>
 
 #include <caml/mlvalues.h>
 #include <caml/fail.h>
@@ -17,6 +18,32 @@ struct Context
     cairo_t *context;
     SDL_Texture *texture;
 };
+
+/* TODO: Image cache is linear */
+#define CACHE_CAPACITY 1024
+cairo_surface_t *cache_surface[CACHE_CAPACITY];
+const char *cache_filename[CACHE_CAPACITY];
+size_t cache_count = 0;
+
+static cairo_surface_t *multik_image_cache_get(const char *filename)
+{
+    int index = -1;
+    for (size_t i = 0; i < cache_count; ++i) {
+        if (strcmp(filename, cache_filename[i]) == 0) {
+            index = i;
+            break;
+        }
+    }
+
+    if (index < 0) {
+        assert(cache_count < CACHE_CAPACITY);
+        cache_filename[cache_count] = strdup(filename);
+        cache_surface[cache_count] = cairo_image_surface_create_from_png(filename);
+        return cache_surface[cache_count++];
+    }
+
+    return cache_surface[index];
+}
 
 CAMLprim value
 multik_cairo_make(value width, value height)
@@ -262,6 +289,45 @@ multik_cairo_draw_text(value context_value,
     cairo_fill(context->context);
 
     CAMLreturn(Val_unit);
+}
+
+CAMLprim value
+multik_cairo_draw_image(value context_value,
+                        value filepath)
+{
+    CAMLparam2(context_value, filepath);
+    struct Context *context = (struct Context *) context_value;
+
+    if (context == NULL) {
+        caml_failwith("Context is NULL");
+    }
+
+    cairo_surface_t *image =
+        multik_image_cache_get(String_val(filepath));
+    assert(image);
+    const int width = cairo_image_surface_get_width(image);
+    const int height = cairo_image_surface_get_height(image);
+
+    cairo_set_source_surface(
+        context->context,
+        image,
+        0.0, 0.0);
+    cairo_rectangle(context->context, 0.0, 0.0,
+                    width, height);
+    cairo_fill(context->context);
+
+    CAMLreturn(Val_unit);
+}
+
+CAMLprim value
+multik_cairo_boundary_image(value filepath)
+{
+    CAMLparam1(filepath);
+    CAMLlocal1(boundary);
+    /* TODO: multik_cairo_boundary_image is not implement */
+    Store_field(boundary, 0, caml_copy_double(0.0));
+    Store_field(boundary, 1, caml_copy_double(0.0));
+    CAMLreturn(boundary);
 }
 
 CAMLprim value

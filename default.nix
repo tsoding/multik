@@ -4,7 +4,6 @@ with import <nixpkgs> {}; {
         buildInputs = [ stdenv
                         gcc
                         gdb
-                        gprof
                         ocaml
                         ocamlPackages.findlib
                         ocamlPackages.camlp4
@@ -13,6 +12,7 @@ with import <nixpkgs> {}; {
                         SDL2
                         ffmpeg-full
                         ncurses
+                        pkg-config
                       ];
     };
 }
