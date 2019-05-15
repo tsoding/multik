@@ -19,7 +19,7 @@ struct Context
     SDL_Texture *texture;
 };
 
-/* TODO: Image cache is linear */
+/* TODO(#114): Image cache is linear */
 #define CACHE_CAPACITY 1024
 cairo_surface_t *cache_surface[CACHE_CAPACITY];
 const char *cache_filename[CACHE_CAPACITY];
