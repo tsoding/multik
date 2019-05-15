@@ -11,6 +11,7 @@ install:
 script:
   - eval `opam config env`
   - make
+  - make multik.prof
 env:
   - OCAML_VERSION=4.04
 os:
