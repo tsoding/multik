@@ -7,7 +7,7 @@ addons:
 install:
   - wget https://raw.githubusercontent.com/ocaml/ocaml-ci-scripts/master/.travis-ocaml.sh
   - bash -ex .travis-ocaml.sh
-  - opam install -y ocamlfind
+  - opam install -y ocamlfind camlp4
 script:
   - eval `opam config env`
   - make
