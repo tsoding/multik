@@ -324,9 +324,14 @@ multik_cairo_boundary_image(value filepath)
 {
     CAMLparam1(filepath);
     CAMLlocal1(boundary);
-    /* TODO(#115): multik_cairo_boundary_image is not implement */
-    Store_field(boundary, 0, caml_copy_double(0.0));
-    Store_field(boundary, 1, caml_copy_double(0.0));
+
+    cairo_surface_t *image =
+        multik_image_cache_get(String_val(filepath));
+    assert(image);
+    const int width = cairo_image_surface_get_width(image);
+    const int height = cairo_image_surface_get_height(image);
+    Store_field(boundary, 0, caml_copy_double((double) width));
+    Store_field(boundary, 1, caml_copy_double((double) height));
     CAMLreturn(boundary);
 }
 
