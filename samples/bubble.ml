@@ -1,3 +1,5 @@
+open Extra
+
 module Sort =
   struct
     let print_trace (trace: (int * int) list) =
@@ -76,7 +78,7 @@ module Bubble : Animation.T =
                                   height *. 0.5 -. h *. 0.5))
 
     let kkona_snek (angle: float) =
-      ListExtra.range 1 30
+      List.range 1 30
       |> List.map string_of_int
       |> List.map (fun _ ->
              Picture.image "./kkona.png"
@@ -100,7 +102,7 @@ module Bubble : Animation.T =
       let n = floor (duration /. delta_time) in
       let r = delta_time /. duration in
       let dir = let open Vec2 in finish |-| start in
-      ListExtra.range 0 (int_of_float n - 1)
+      List.range 0 (int_of_float n - 1)
       |> List.map (fun i ->
              let open Vec2 in
              p
@@ -120,12 +122,12 @@ module Bubble : Animation.T =
       let p1 = List.nth ps i in
       let p2 = List.nth ps j in
       let rest_dots = dots
-                      |> ListExtra.excludeNth j
-                      |> ListExtra.excludeNth i
+                      |> List.excludeNth j
+                      |> List.excludeNth i
       in
       let rest_ps = ps
-                    |> ListExtra.excludeNth j
-                    |> ListExtra.excludeNth i
+                    |> List.excludeNth j
+                    |> List.excludeNth i
       in
       [List.map2 Picture.translate rest_ps rest_dots
        |> Picture.compose]
@@ -146,7 +148,7 @@ module Bubble : Animation.T =
         let arr = Array.of_list xs in
         xs :: (trace
                |> List.map (fun (i, j) ->
-                      arr |> ArrayExtra.swap i j;
+                      arr |> Array.swap i j;
                       arr |> Array.to_list))
       in
       let last_state = [List.nth states n |> render_array]
@@ -154,7 +156,7 @@ module Bubble : Animation.T =
                        |> Flow.cycle
                        |> Flow.take (floor (2.0 /. delta_time)
                                      |> int_of_float)
-      in (List.map2 animate_swap trace (states |> ListExtra.take n)
+      in (List.map2 animate_swap trace (states |> List.take n)
           @ [last_state])
          |> List.fold_left Flow.concat Flow.nil
 
