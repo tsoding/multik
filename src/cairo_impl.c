@@ -330,6 +330,7 @@ multik_cairo_boundary_image(value filepath)
     assert(image);
     const int width = cairo_image_surface_get_width(image);
     const int height = cairo_image_surface_get_height(image);
+    boundary = caml_alloc(2, 0);
     Store_field(boundary, 0, caml_copy_double((double) width));
     Store_field(boundary, 1, caml_copy_double((double) height));
     CAMLreturn(boundary);

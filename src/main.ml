@@ -109,6 +109,7 @@ let render (animation_path: string) (output_filename: string) (config: render_co
   |> Printf.printf "ffmpeg %s";
   rmdir_rec dirpath
 
+(* TODO: Shadow function is not available to the animations *)
 let shadow (p: Picture.t): Picture.t =
   Picture.compose [ p
                     |> Picture.color Color.black
