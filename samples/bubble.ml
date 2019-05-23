@@ -134,11 +134,9 @@ module Bubble : Animation.T =
       |> Flow.of_list
       |> Flow.cycle
       |> Flow.zipWith
-           (fun pic1 pic2 ->
-             Picture.compose [pic1; pic2])
+           Picture.compose2
            (Flow.zipWith
-              (fun pic1 pic2 ->
-                Picture.compose [pic1; pic2])
+              Picture.compose2
               (animate_move dot1 p1 p2)
               (animate_move dot2 p2 p1))
 
@@ -164,7 +162,7 @@ module Bubble : Animation.T =
 
     let frames =
       Flow.zipWith
-        (fun p1 p2 -> Picture.compose [p1; p2])
+        Picture.compose2
         (Flow.of_list [background] |> Flow.cycle)
         ([10; 9; 8; 7; 6; 5; 4; 3; 2; 1]
          |> animate_bubble
