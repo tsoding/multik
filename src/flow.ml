@@ -112,5 +112,7 @@ let rec length (xs: 'a t): int =
   | Nil -> 0
   | Cons (_, xs) -> 1 + length xs
 
-(* TODO: Flow.zipWith *)
-(* TODO: Flow.replicate: int -> 'a -> 'a list *)
+let rec replicate (n: int) (x: 'a): 'a t =
+  [x] |> of_list |> cycle |> take n
+
+(* TODO: Flow.range *)

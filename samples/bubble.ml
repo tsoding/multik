@@ -152,11 +152,12 @@ module Bubble : Animation.T =
                       arr |> Array.swap i j;
                       arr |> Array.to_list))
       in
-      let last_state = [List.nth states n |> render_array]
-                       |> Flow.of_list
-                       |> Flow.cycle
-                       |> Flow.take (floor (2.0 /. delta_time)
-                                     |> int_of_float)
+      (* TODO: wait: (seconds: float) (fps: int) (p: Picture.t): Picture.t Flow.t *)
+      let last_state = List.nth states n
+                       |> render_array
+                       |> Flow.replicate
+                            (floor (2.0 /. delta_time)
+                             |> int_of_float)
       in (List.map2 animate_swap trace (states |> List.take n)
           @ [last_state])
          |> List.fold_left Flow.concat Flow.nil
