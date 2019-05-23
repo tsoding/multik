@@ -14,7 +14,8 @@ module Swirl : Animation.T =
       |> Picture.color (Color.rgba brightness brightness brightness 1.0)
 
     let dot =
-      Picture.Circle 30.0
+      Picture.image "./kkona.png"
+      (* Picture.Circle 10.0 *)
       (* |> Picture.color (Color.rgba 0.8 0.9 0.9 1.0) *)
 
     let swirl (p: Picture.t): Picture.t Flow.t =

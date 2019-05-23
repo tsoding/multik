@@ -24,6 +24,9 @@ let circle (r: float): t =
 let compose (ps: t list): t =
   Compose ps
 
+let compose2 (p1: t) (p2: t): t =
+  Compose [p1; p2]
+
 let text (font: Font.t) (text: string): t =
   Text (font, text)
 

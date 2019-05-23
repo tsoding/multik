@@ -15,6 +15,14 @@ let homo (x, y: float * float): homo_t =
 let cart (x, y, z: homo_t): t =
   (x /. z, y /. z)
 
+let len ((x, y): t): float =
+  sqrt (x *. x +. y *. y)
+
+let norm ((x, y): t): t =
+  let n = len (x, y) in
+  (x /. n, y /. n)
+
 let (|+|) ((x1, y1): t) ((x2, y2): t) = (x1 +. x2, y1 +. y2)
 let (|-|) ((x1, y1): t) ((x2, y2): t) = (x1 -. x2, y1 -. y2)
 let (|*|) ((x1, y1): t) ((x2, y2): t) = (x1 *. x2, y1 *. y2)
+let (|**|) ((x, y): t) (s: float) = (x *. s, y *. s)

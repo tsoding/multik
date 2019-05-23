@@ -1,3 +1,5 @@
+open Extra
+
 type 'a cons = Nil | Cons of 'a Lazy.t * 'a t
 and 'a t =
   {
@@ -91,18 +93,31 @@ let rec zip (xs : 'a t) (ys : 'b t): ('a * 'b) t =
                       zip xs ys))
     }
 
+let rec zipWith (f: 'a -> 'b -> 'c) (xs: 'a t) (ys: 'b t): 'c t =
+  zip xs ys |> map (Fun.uncurry f)
+
 let rec from (n: int): int t =
   {
     flow = lazy (Cons (lazy n, from (n + 1)))
   }
 
-let rec iter (f: 'a -> unit) (xs: 'a t): unit =
+let rec for_ (f: 'a -> unit) (xs: 'a t): unit =
   match Lazy.force xs.flow with
   | Nil -> ()
   | Cons (x, xs) -> Lazy.force x |> f;
-                    iter f xs
+                    for_ f xs
 
 let rec length (xs: 'a t): int =
   match Lazy.force xs.flow with
   | Nil -> 0
   | Cons (_, xs) -> 1 + length xs
+
+let rec replicate (n: int) (x: 'a): 'a t =
+  [x] |> of_list |> cycle |> take n
+
+let rec range (low: int) (high: int): int t =
+  {
+    flow = lazy (if low > high
+                 then Nil
+                 else Cons (lazy low, range (low + 1) high))
+  }

@@ -93,7 +93,7 @@ let render (animation_path: string) (output_filename: string) (config: render_co
     (fun c ->
       scaled_frames
       |> Flow.zip (Flow.from 0)
-      |> Flow.iter (fun (index, picture) ->
+      |> Flow.for_ (fun (index, picture) ->
              let filename = dirpath
                             ^ Filename.dir_sep
                             ^ string_of_int index
@@ -109,6 +109,7 @@ let render (animation_path: string) (output_filename: string) (config: render_co
   |> Printf.printf "ffmpeg %s";
   rmdir_rec dirpath
 
+(* TODO(#125): Shadow function is not available to the animations *)
 let shadow (p: Picture.t): Picture.t =
   Picture.compose [ p
                     |> Picture.color Color.black

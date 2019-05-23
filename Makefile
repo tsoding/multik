@@ -1,6 +1,7 @@
-CFLAGS=-Wall -Werror $(shell pkg-config --cflags sdl2 cairo)
+CFLAGS=-Wall -Werror -ggdb $(shell pkg-config --cflags sdl2 cairo)
 LIBS=$(shell pkg-config --libs sdl2 cairo)
-CORE_MLS=src/flow.ml \
+CORE_MLS=src/extra.ml \
+         src/flow.ml \
          src/color.ml \
          src/font.ml \
          src/vec2.ml \
@@ -8,7 +9,8 @@ CORE_MLS=src/flow.ml \
          src/picture.ml \
          src/sdlTexture.ml \
          src/cairo_matrix.ml \
-         src/cairo.mli src/cairo.ml \
+         src/cairo.mli \
+         src/cairo.ml \
          src/console.ml \
          src/watcher.ml \
          src/animation.ml \
@@ -20,7 +22,8 @@ OBJS=src/cairo_matrix_impl.o \
 SAMPLES=samples/arkanoid.cmo \
         samples/empty.cmo \
         samples/rotation.cmo \
-        samples/swirl.cmo
+        samples/swirl.cmo \
+        samples/bubble.cmo
 
 all: multik $(SAMPLES)
 
