@@ -66,7 +66,7 @@ module Bubble : Animation.T =
     let row_layout (padding: float) (xs: 'a list): Vec2.t list =
       xs |> List.mapi (fun i _ -> (padding *. float_of_int i, 0.0))
 
-    (* TODO: row layouting should be available to all animations *)
+    (* TODO(#122): row layouting should be available to all animations *)
     let row (padding: float) (ps: Picture.t list): Picture.t =
       List.map2 Picture.translate (row_layout padding ps) ps
       |> Picture.compose
