@@ -96,12 +96,11 @@ let rec from (n: int): int t =
     flow = lazy (Cons (lazy n, from (n + 1)))
   }
 
-(* TODO: iter -> forEach *)
-let rec iter (f: 'a -> unit) (xs: 'a t): unit =
+let rec for_ (f: 'a -> unit) (xs: 'a t): unit =
   match Lazy.force xs.flow with
   | Nil -> ()
   | Cons (x, xs) -> Lazy.force x |> f;
-                    iter f xs
+                    for_ f xs
 
 let rec length (xs: 'a t): int =
   match Lazy.force xs.flow with
