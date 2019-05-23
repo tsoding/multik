@@ -97,7 +97,7 @@ module Bubble : Animation.T =
 
     type t = float
 
-    (* TODO: animate_move is not available to all of the animations *)
+    (* TODO(#123): animate_move is not available to all of the animations *)
     let animate_move (p: Picture.t) (start: Vec2.t) (finish: Vec2.t): Picture.t Flow.t =
       let duration = 0.5 in
       let n = floor (duration /. delta_time) in
