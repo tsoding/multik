@@ -133,13 +133,14 @@ module Bubble : Animation.T =
        |> Picture.compose]
       |> Flow.of_list
       |> Flow.cycle
-      |> Flow.zip (Flow.zip
-                     (animate_move dot1 p1 p2)
-                     (animate_move dot2 p2 p1)
-                   |> Flow.map (fun (pic1, pic2) ->
-                          Picture.compose [pic1; pic2]))
-      |> Flow.map (fun (pic1, pic2) ->
+      |> Flow.zipWith
+           (fun pic1 pic2 ->
              Picture.compose [pic1; pic2])
+           (Flow.zipWith
+              (fun pic1 pic2 ->
+                Picture.compose [pic1; pic2])
+              (animate_move dot1 p1 p2)
+              (animate_move dot2 p2 p1))
 
     let animate_bubble (xs: int list): Picture.t Flow.t =
       let trace = Sort.bubble_trace xs in
@@ -161,12 +162,12 @@ module Bubble : Animation.T =
          |> List.fold_left Flow.concat Flow.nil
 
     let frames =
-      Flow.zip
+      Flow.zipWith
+        (fun p1 p2 -> Picture.compose [p1; p2])
         (Flow.of_list [background] |> Flow.cycle)
         ([10; 9; 8; 7; 6; 5; 4; 3; 2; 1]
          |> animate_bubble
          |> Flow.map screenCenter)
-      |> Flow.map (fun (p1, p2) -> Picture.compose [p1; p2])
 
   end
 

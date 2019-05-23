@@ -1,3 +1,5 @@
+open Extra
+
 type 'a cons = Nil | Cons of 'a Lazy.t * 'a t
 and 'a t =
   {
@@ -90,6 +92,9 @@ let rec zip (xs : 'a t) (ys : 'b t): ('a * 'b) t =
                      (lazy (Lazy.force x, Lazy.force y),
                       zip xs ys))
     }
+
+let rec zipWith (f: 'a -> 'b -> 'c) (xs: 'a t) (ys: 'b t): 'c t =
+  zip xs ys |> map (Fun.uncurry f)
 
 let rec from (n: int): int t =
   {

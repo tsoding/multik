@@ -31,3 +31,9 @@ module Array =
 
     include Array
   end
+
+module Fun =
+  struct
+    let uncurry (f: 'a -> 'b -> 'c): 'a * 'b -> 'c =
+      fun (a, b) -> f a b
+  end
