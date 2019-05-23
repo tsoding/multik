@@ -139,7 +139,7 @@ module Bubble : Animation.T =
               (animate_move dot1 p1 p2)
               (animate_move dot2 p2 p1))
 
-    (* TODO: animate_wait is not available to all of the animations *)
+    (* TODO(#124): animate_wait is not available to all of the animations *)
     let animate_wait (seconds: float) (fps: int) (p: Picture.t): Picture.t Flow.t =
       Flow.replicate (floor (seconds *. float_of_int fps) |> int_of_float) p
 
