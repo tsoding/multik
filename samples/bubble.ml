@@ -97,6 +97,7 @@ module Bubble : Animation.T =
 
     type t = float
 
+    (* TODO: animate_move is not available to all of the animations *)
     let animate_move (p: Picture.t) (start: Vec2.t) (finish: Vec2.t): Picture.t Flow.t =
       let duration = 0.5 in
       let n = floor (duration /. delta_time) in
@@ -138,6 +139,10 @@ module Bubble : Animation.T =
               (animate_move dot1 p1 p2)
               (animate_move dot2 p2 p1))
 
+    (* TODO: animate_wait is not available to all of the animations *)
+    let animate_wait (seconds: float) (fps: int) (p: Picture.t): Picture.t Flow.t =
+      Flow.replicate (floor (seconds *. float_of_int fps) |> int_of_float) p
+
     let animate_bubble (xs: int list): Picture.t Flow.t =
       let trace = Sort.bubble_trace xs in
       let n = List.length trace in
@@ -148,12 +153,9 @@ module Bubble : Animation.T =
                       arr |> Array.swap i j;
                       arr |> Array.to_list))
       in
-      (* TODO: wait: (seconds: float) (fps: int) (p: Picture.t): Picture.t Flow.t *)
       let last_state = List.nth states n
                        |> render_array
-                       |> Flow.replicate
-                            (floor (2.0 /. delta_time)
-                             |> int_of_float)
+                       |> animate_wait 2.0 fps
       in (List.map2 animate_swap trace (states |> List.take n)
           @ [last_state])
          |> List.fold_left Flow.concat Flow.nil
@@ -162,7 +164,8 @@ module Bubble : Animation.T =
       Flow.zipWith
         Picture.compose2
         (Flow.of_list [background] |> Flow.cycle)
-        ([10; 9; 8; 7; 6; 5; 4; 3; 2; 1]
+        (List.range 1 10
+         |> List.rev
          |> animate_bubble
          |> Flow.map screenCenter)
 
