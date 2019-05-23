@@ -115,4 +115,9 @@ let rec length (xs: 'a t): int =
 let rec replicate (n: int) (x: 'a): 'a t =
   [x] |> of_list |> cycle |> take n
 
-(* TODO: Flow.range *)
+let rec range (low: int) (high: int): int t =
+  {
+    flow = lazy (if low > high
+                 then Nil
+                 else Cons (lazy low, range (low + 1) high))
+  }

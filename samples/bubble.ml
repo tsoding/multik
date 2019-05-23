@@ -102,13 +102,11 @@ module Bubble : Animation.T =
       let n = floor (duration /. delta_time) in
       let r = delta_time /. duration in
       let dir = let open Vec2 in finish |-| start in
-      List.range 0 (int_of_float n - 1)
-      |> List.map (fun i ->
+      Flow.range 0 (int_of_float n - 1)
+      |> Flow.map (fun i ->
              let open Vec2 in
              p
              |> Picture.translate (start |+| (dir |**| (r *. float_of_int i))))
-      |> Flow.of_list
-
 
     let animate_swap (a, b: int * int) (xs: int list): Picture.t Flow.t =
       let (i, j) = if a > b then (b, a) else (a, b) in
