@@ -1,12 +1,3 @@
-module Extra =
-  struct
-    let swap (i: int) (j: int) (xs: 'a array): unit =
-      let a = Array.get xs i in
-      let b = Array.get xs j in
-      Array.set xs i b;
-      Array.set xs j a
-  end
-
 module Sort =
   struct
     let print_trace (trace: (int * int) list) =
@@ -73,6 +64,7 @@ module Bubble : Animation.T =
     let row_layout (padding: float) (xs: 'a list): Vec2.t list =
       xs |> List.mapi (fun i _ -> (padding *. float_of_int i, 0.0))
 
+    (* TODO: row layouting should be available to all animations *)
     let row (padding: float) (ps: Picture.t list): Picture.t =
       List.map2 Picture.translate (row_layout padding ps) ps
       |> Picture.compose
@@ -154,7 +146,7 @@ module Bubble : Animation.T =
         let arr = Array.of_list xs in
         xs :: (trace
                |> List.map (fun (i, j) ->
-                      arr |> Extra.swap i j;
+                      arr |> ArrayExtra.swap i j;
                       arr |> Array.to_list))
       in
       let last_state = [List.nth states n |> render_array]

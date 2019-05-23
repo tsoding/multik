@@ -41,3 +41,5 @@ let rotate (angle: float) (p: t): t =
 
 let image (filepath: string): t =
   Image filepath
+
+(* TODO: Picture.compose2: t -> t -> t *)

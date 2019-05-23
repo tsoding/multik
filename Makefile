@@ -1,6 +1,7 @@
 CFLAGS=-Wall -Werror -ggdb $(shell pkg-config --cflags sdl2 cairo)
 LIBS=$(shell pkg-config --libs sdl2 cairo)
 CORE_MLS=src/listExtra.ml \
+         src/arrayExtra.ml \
          src/flow.ml \
          src/color.ml \
          src/font.ml \
