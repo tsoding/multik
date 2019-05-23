@@ -1,28 +1,10 @@
 module Extra =
   struct
-    let rec range (low: int) (high: int): int list =
-      if low > high
-      then []
-      else low :: range (low + 1) high
-
-    let excludeNth (n: int) (xs: 'a list): 'a list =
-      xs
-      |> List.mapi (fun i x -> (i, x))
-      |> List.filter (fun (i, _) -> i != n)
-      |> List.map snd
-
     let swap (i: int) (j: int) (xs: 'a array): unit =
       let a = Array.get xs i in
       let b = Array.get xs j in
       Array.set xs i b;
       Array.set xs j a
-
-    let rec take (n: int) (xs: 'a list): 'a list =
-      if n <= 0
-      then []
-      else (match xs with
-            | [] -> []
-            | x :: ys -> x :: take (n - 1) ys)
   end
 
 module Sort =
@@ -102,7 +84,7 @@ module Bubble : Animation.T =
                                   height *. 0.5 -. h *. 0.5))
 
     let kkona_snek (angle: float) =
-      Extra.range 1 30
+      ListExtra.range 1 30
       |> List.map string_of_int
       |> List.map (fun _ ->
              Picture.image "./kkona.png"
@@ -126,7 +108,7 @@ module Bubble : Animation.T =
       let n = floor (duration /. delta_time) in
       let r = delta_time /. duration in
       let dir = let open Vec2 in finish |-| start in
-      Extra.range 0 (int_of_float n - 1)
+      ListExtra.range 0 (int_of_float n - 1)
       |> List.map (fun i ->
              let open Vec2 in
              p
@@ -146,12 +128,12 @@ module Bubble : Animation.T =
       let p1 = List.nth ps i in
       let p2 = List.nth ps j in
       let rest_dots = dots
-                      |> Extra.excludeNth j
-                      |> Extra.excludeNth i
+                      |> ListExtra.excludeNth j
+                      |> ListExtra.excludeNth i
       in
       let rest_ps = ps
-                    |> Extra.excludeNth j
-                    |> Extra.excludeNth i
+                    |> ListExtra.excludeNth j
+                    |> ListExtra.excludeNth i
       in
       [List.map2 Picture.translate rest_ps rest_dots
        |> Picture.compose]
@@ -180,7 +162,7 @@ module Bubble : Animation.T =
                        |> Flow.cycle
                        |> Flow.take (floor (2.0 /. delta_time)
                                      |> int_of_float)
-      in (List.map2 animate_swap trace (states |> Extra.take n)
+      in (List.map2 animate_swap trace (states |> ListExtra.take n)
           @ [last_state])
          |> List.fold_left Flow.concat Flow.nil
 
