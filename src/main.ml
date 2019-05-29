@@ -121,15 +121,15 @@ let preview (animation_path: string) =
     Cairo.with_texture (Console.texture ())
       (fun c -> Cairo.render c p)
   in
-  let rec loop (delta_time: float) (current_fps: int) (frames: Picture.t Flow.t): unit =
+  let rec loop (current_fps: int) (frames: Picture.t Flow.t): unit =
     if not (Console.should_quit ())
     then (if (Watcher.is_file_modified ())
           then (print_endline "reloading";
                 Hot.loadfile(animation_path);
                 let module Reload = (val Hot.get_current () : Animation.T) in
                 if Flow.is_nil Reload.frames
-                then loop delta_time current_fps Flow.nil
-                else Reload.frames |> Flow.cycle |> loop delta_time current_fps)
+                then loop current_fps Flow.nil
+                else Reload.frames |> Flow.cycle |> loop current_fps)
           else (let module A = (val Hot.get_current () : Animation.T) in
                 let frame_begin = Sys.time () in
                 match Flow.uncons frames with
@@ -147,24 +147,24 @@ let preview (animation_path: string) =
                    |> render_picture;
                    Console.present ();
                    let frame_work = Sys.time () -. frame_begin in
+                   let delta_time = 1.0 /. (float_of_int A.fps) in
                    (delta_time -. frame_work) |> max 0.0 |> Thread.delay;
                    let next_fps = 1.0 /. (max frame_work delta_time) in
-                   loop delta_time (int_of_float ((next_fps +. float_of_int current_fps) /. 2.0)) rest_frames
+                   loop (int_of_float ((next_fps +. float_of_int current_fps) /. 2.0)) rest_frames
                 | None -> [empty_animation_frame A.resolution]
                           |> Flow.of_list
                           |> Flow.cycle
-                          |> loop delta_time current_fps))
+                          |> loop current_fps))
     else ()
   in
     Hot.loadfile(animation_path);
     let module A = (val Hot.get_current () : Animation.T) in
     let (width, height) = A.resolution in
-    let delta_time = 1.0 /. (float_of_int A.fps) in
     Console.init width height;
     Watcher.init animation_path;
     if Flow.is_nil A.frames
-    then loop delta_time 0 Flow.nil
-    else A.frames |> Flow.cycle |> loop delta_time 0;
+    then loop 0 Flow.nil
+    else A.frames |> Flow.cycle |> loop 0;
     Watcher.free ();
     Console.free ()
 
