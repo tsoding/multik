@@ -164,8 +164,7 @@ module Bubble : Animation.T =
       Flow.zipWith
         Picture.compose2
         (Flow.of_list [background] |> Flow.cycle)
-        (List.range 1 10
-         |> List.rev
+        (Random.int_list 30 10
          |> animate_bubble
          |> Flow.map screenCenter)
 
