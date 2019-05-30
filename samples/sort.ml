@@ -73,7 +73,7 @@ module Quick =
       let n = List.length xs in
       let ys = Array.of_list xs in
       let trace = ref [] in
-      (* TODO: it would be interesting to take a look at several pivoting strategies *)
+      (* TODO(#129): it would be interesting to take a look at several pivoting strategies *)
       let pivot (l: int) (h: int): int =
         let rec pivot_impl (p: int) (i: int): int =
           if i < h then
