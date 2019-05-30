@@ -1,12 +1,8 @@
 open Extra
 
-module Sort =
+module Bubble =
   struct
-    let print_trace (trace: (int * int) list) =
-      trace |> List.iter (fun (i, j) -> Printf.printf "%d %d\n" i j);
-      print_endline "------------------------------"
-
-    let bubble_trace (xs: int list): (int * int) list =
+    let trace (xs: int list): (int * int) list =
       let input = Array.of_list xs in
       let output = ref [] in
       let n = Array.length input in
@@ -25,9 +21,94 @@ module Sort =
       List.rev !output
   end
 
-module Bubble : Animation.T =
+module Merge =
   struct
-    let row_padding = 150.0
+    let merge_array (xs: int array) (l: int) (m: int) (h: int): (int * int) list =
+      let n = h - l in
+      let ys = Array.make n 0 in
+      let is = Array.make n 0 in
+      let rec merge_array_impl (i: int) (j: int) (k: int): unit =
+        match () with
+        | _ when (i >= m) && (j >= h) -> ()
+        | _ when i >= m ->      (* ran out of left, pick right *)
+           Array.set ys k (Array.get xs j);
+           Array.set is k j;
+           merge_array_impl i (j + 1) (k + 1)
+        | _ when j >= h ->      (* ran out of right, pick left *)
+           Array.set ys k (Array.get xs i);
+           Array.set is k i;
+           merge_array_impl (i + 1) j (k + 1)
+        | _ when Array.get xs i < Array.get xs j -> (* pick left *)
+           Array.set ys k (Array.get xs i);
+           Array.set is k i;
+           merge_array_impl (i + 1) j (k + 1)
+        | _ when Array.get xs i >= Array.get xs j -> (* pick right *)
+           Array.set ys k (Array.get xs j);
+           Array.set is k j;
+           merge_array_impl i (j + 1) (k + 1)
+        | _ -> failwith "Should never happen"
+      in
+      merge_array_impl l h 0;
+      Array.blit ys 0 xs l (h - l);
+      List.map2 (fun a b -> (a, b)) (Array.to_list is) (List.range l (h - 1))
+      |> List.filter (fun (a, b) -> a != b)
+
+    (* TODO(#128): merge_trace cannot not generate a correct trace *)
+    let trace (xs: int list): (int * int) list =
+      let rec merge_trace_impl (xs: int array) (l: int) (h: int): (int * int) list =
+        if h - l <= 1
+        then []
+        else let m = l + (h - l) / 2 in
+             let t1 = merge_trace_impl xs l m in
+             let t2 = merge_trace_impl xs m h in
+             let t3 = merge_array xs l m h in
+             t1 @ t2 @ t3
+      in
+      merge_trace_impl (Array.of_list xs) 0 (List.length xs)
+  end
+
+module Quick =
+  struct
+    let trace (xs: int list): (int * int) list =
+      let n = List.length xs in
+      let ys = Array.of_list xs in
+      let trace = ref [] in
+      (* TODO(#129): it would be interesting to take a look at several pivoting strategies *)
+      let pivot (l: int) (h: int): int =
+        let rec pivot_impl (p: int) (i: int): int =
+          if i < h then
+            (if (Array.get ys p) > (Array.get ys i) then
+               begin
+                 Array.swap (p + 1) i ys;
+                 trace := ((p + 1), i) :: !trace;
+
+                 Array.swap p (p + 1) ys;
+                 trace := (p, (p + 1)) :: !trace;
+
+                 pivot_impl (p + 1) (i + 1)
+               end
+             else
+               pivot_impl p (i + 1))
+          else p
+        in
+        pivot_impl l (l + 1)
+      in
+      let rec quick_trace_impl (l: int) (h: int): unit =
+        if h - l >= 2 then
+          let p = pivot l h in
+          quick_trace_impl l p;
+          quick_trace_impl (p + 1) h
+      in
+      quick_trace_impl 0 n;
+      print_endline "";
+      !trace
+      |> List.rev
+      |> List.filter (fun (a, b) -> a != b)
+  end
+
+module Sort : Animation.T =
+  struct
+    let row_padding = 50.0
     let resolution = (1920, 1080)
     let (width, height) = resolution |> Vec2.of_ints
     let fps = 60
@@ -47,7 +128,7 @@ module Bubble : Animation.T =
                       ; p ]
 
     let dot (titleText: string): Picture.t =
-      let radius = 50.0 in
+      let radius = 25.0 in
       let circle_color = (1.0, 0.2, 0.2, 1.0) in
       let text_color = (0.8, 0.8, 0.8, 1.0) in
       Picture.compose
@@ -99,7 +180,7 @@ module Bubble : Animation.T =
 
     (* TODO(#123): animate_move is not available to all of the animations *)
     let animate_move (p: Picture.t) (start: Vec2.t) (finish: Vec2.t): Picture.t Flow.t =
-      let duration = 0.5 in
+      let duration = 0.15 in
       let n = floor (duration /. delta_time) in
       let r = delta_time /. duration in
       let dir = let open Vec2 in finish |-| start in
@@ -143,8 +224,7 @@ module Bubble : Animation.T =
     let animate_wait (seconds: float) (fps: int) (p: Picture.t): Picture.t Flow.t =
       Flow.replicate (floor (seconds *. float_of_int fps) |> int_of_float) p
 
-    let animate_bubble (xs: int list): Picture.t Flow.t =
-      let trace = Sort.bubble_trace xs in
+    let animate_trace (xs: int list) (trace: (int * int) list): Picture.t Flow.t =
       let n = List.length trace in
       let states =
         let arr = Array.of_list xs in
@@ -161,14 +241,15 @@ module Bubble : Animation.T =
          |> List.fold_left Flow.concat Flow.nil
 
     let frames =
+      let xs = Random.int_list 50 35 in
+      let trace = Quick.trace xs in
+      trace |> List.length |> Printf.printf "Number of swaps: %d\n";
       Flow.zipWith
         Picture.compose2
         (Flow.of_list [background] |> Flow.cycle)
-        (List.range 1 10
-         |> List.rev
-         |> animate_bubble
+        (animate_trace xs trace
          |> Flow.map screenCenter)
 
   end
 
-let () = Hot.load (module Bubble : Animation.T)
+let () = Hot.load (module Sort : Animation.T)

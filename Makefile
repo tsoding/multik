@@ -23,7 +23,7 @@ SAMPLES=samples/arkanoid.cmo \
         samples/empty.cmo \
         samples/rotation.cmo \
         samples/swirl.cmo \
-        samples/bubble.cmo
+        samples/sort.cmo
 
 all: multik $(SAMPLES)
 

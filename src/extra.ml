@@ -32,6 +32,16 @@ module Array =
     include Array
   end
 
+module Random =
+  struct
+    let rec int_list (bound: int) (n: int): int list =
+      if n <= 0
+      then []
+      else Random.int bound :: int_list bound (n - 1)
+
+    include Random
+  end
+
 module Fun =
   struct
     let uncurry (f: 'a -> 'b -> 'c): 'a * 'b -> 'c =
