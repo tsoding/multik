@@ -53,7 +53,7 @@ module Merge =
       List.map2 (fun a b -> (a, b)) (Array.to_list is) (List.range l (h - 1))
       |> List.filter (fun (a, b) -> a != b)
 
-    (* TODO: merge_trace cannot not generate a correct trace *)
+    (* TODO(#128): merge_trace cannot not generate a correct trace *)
     let trace (xs: int list): (int * int) list =
       let rec merge_trace_impl (xs: int array) (l: int) (h: int): (int * int) list =
         if h - l <= 1
