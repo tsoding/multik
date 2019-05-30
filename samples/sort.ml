@@ -1,12 +1,8 @@
 open Extra
 
-module Sort =
+module Bubble =
   struct
-    let print_trace (trace: (int * int) list) =
-      trace |> List.iter (fun (i, j) -> Printf.printf "%d %d\n" i j);
-      print_endline "------------------------------"
-
-    let bubble_trace (xs: int list): (int * int) list =
+    let trace (xs: int list): (int * int) list =
       let input = Array.of_list xs in
       let output = ref [] in
       let n = Array.length input in
@@ -23,7 +19,10 @@ module Sort =
         done
       done;
       List.rev !output
+  end
 
+module Merge =
+  struct
     let merge_array (xs: int array) (l: int) (m: int) (h: int): (int * int) list =
       let n = h - l in
       let ys = Array.make n 0 in
@@ -55,7 +54,7 @@ module Sort =
       |> List.filter (fun (a, b) -> a != b)
 
     (* TODO: merge_trace does not generate a correct trace *)
-    let merge_trace (xs: int list): (int * int) list =
+    let trace (xs: int list): (int * int) list =
       let rec merge_trace_impl (xs: int array) (l: int) (h: int): (int * int) list =
         if h - l <= 1
         then []
@@ -66,8 +65,11 @@ module Sort =
              t1 @ t2 @ t3
       in
       merge_trace_impl (Array.of_list xs) 0 (List.length xs)
+  end
 
-    let quick_trace (xs: int list): (int * int) list =
+module Quick =
+  struct
+    let trace (xs: int list): (int * int) list =
       let n = List.length xs in
       let ys = Array.of_list xs in
       let trace = ref [] in
@@ -103,7 +105,7 @@ module Sort =
       |> List.filter (fun (a, b) -> a != b)
   end
 
-module Bubble : Animation.T =
+module Sort : Animation.T =
   struct
     let row_padding = 50.0
     let resolution = (1920, 1080)
@@ -239,7 +241,7 @@ module Bubble : Animation.T =
 
     let frames =
       let xs = Random.int_list 50 35 in
-      let trace = Sort.quick_trace xs in
+      let trace = Quick.trace xs in
       trace |> List.length |> Printf.printf "Number of swaps: %d\n";
       Flow.zipWith
         Picture.compose2
@@ -249,4 +251,4 @@ module Bubble : Animation.T =
 
   end
 
-let () = Hot.load (module Bubble : Animation.T)
+let () = Hot.load (module Sort : Animation.T)
