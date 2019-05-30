@@ -53,7 +53,7 @@ module Merge =
       List.map2 (fun a b -> (a, b)) (Array.to_list is) (List.range l (h - 1))
       |> List.filter (fun (a, b) -> a != b)
 
-    (* TODO: merge_trace does not generate a correct trace *)
+    (* TODO: merge_trace cannot not generate a correct trace *)
     let trace (xs: int list): (int * int) list =
       let rec merge_trace_impl (xs: int array) (l: int) (h: int): (int * int) list =
         if h - l <= 1
@@ -73,6 +73,7 @@ module Quick =
       let n = List.length xs in
       let ys = Array.of_list xs in
       let trace = ref [] in
+      (* TODO: it would be interesting to take a look at several pivoting strategies *)
       let pivot (l: int) (h: int): int =
         let rec pivot_impl (p: int) (i: int): int =
           if i < h then
