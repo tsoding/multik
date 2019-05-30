@@ -24,10 +24,6 @@ module Sort =
       done;
       List.rev !output
 
-      (*   4
-       * 1 2 3 4 5 6 7 8 [9]
-       * ^       ^        ^ *)
-
     let merge_array (xs: int array) (l: int) (m: int) (h: int): (int * int) list =
       let n = h - l in
       let ys = Array.make n 0 in
@@ -129,8 +125,6 @@ module Bubble : Animation.T =
                       ; p ]
 
     let dot (titleText: string): Picture.t =
-      Picture.image "./kkona.png"
-      (*
       let radius = 25.0 in
       let circle_color = (1.0, 0.2, 0.2, 1.0) in
       let text_color = (0.8, 0.8, 0.8, 1.0) in
@@ -146,7 +140,6 @@ module Bubble : Animation.T =
                (fun (_, _, w, h) ->
                  title
                  |> Picture.translate (w *. (-0.5), h *. 0.5))]
-       *)
 
     let row_layout (padding: float) (xs: 'a list): Vec2.t list =
       xs |> List.mapi (fun i _ -> (padding *. float_of_int i, 0.0))
@@ -246,7 +239,7 @@ module Bubble : Animation.T =
 
     let frames =
       let xs = Random.int_list 50 35 in
-      let trace = Sort.bubble_trace xs in
+      let trace = Sort.quick_trace xs in
       trace |> List.length |> Printf.printf "Number of swaps: %d\n";
       Flow.zipWith
         Picture.compose2
