@@ -1,8 +1,11 @@
 open Extra
 
+type action_t = Swap of int * int
+              | Assign of int * int
+
 module Bubble =
   struct
-    let trace (xs: int list): (int * int) list =
+    let trace (xs: int list): action_t list =
       let input = Array.of_list xs in
       let output = ref [] in
       let n = Array.length input in
@@ -14,7 +17,7 @@ module Bubble =
             begin
               Array.set input j b;
               Array.set input (j + 1) a;
-              output := (j, j + 1) :: !output
+              output := Swap (j, j + 1) :: !output
             end
         done
       done;
@@ -23,7 +26,7 @@ module Bubble =
 
 module Merge =
   struct
-    let merge_array (xs: int array) (l: int) (m: int) (h: int): (int * int) list =
+    let merge_array (xs: int array) (l: int) (m: int) (h: int): action_t list =
       let n = h - l in
       let ys = Array.make n 0 in
       let is = Array.make n 0 in
@@ -52,10 +55,11 @@ module Merge =
       Array.blit ys 0 xs l (h - l);
       List.map2 (fun a b -> (a, b)) (Array.to_list is) (List.range l (h - 1))
       |> List.filter (fun (a, b) -> a != b)
+      |> List.map (fun (a, b) -> Swap (a, b))
 
     (* TODO(#128): merge_trace cannot not generate a correct trace *)
-    let trace (xs: int list): (int * int) list =
-      let rec merge_trace_impl (xs: int array) (l: int) (h: int): (int * int) list =
+    let trace (xs: int list): action_t list =
+      let rec merge_trace_impl (xs: int array) (l: int) (h: int): action_t list =
         if h - l <= 1
         then []
         else let m = l + (h - l) / 2 in
@@ -69,7 +73,7 @@ module Merge =
 
 module Quick =
   struct
-    let trace (xs: int list): (int * int) list =
+    let trace (xs: int list): action_t list =
       let n = List.length xs in
       let ys = Array.of_list xs in
       let trace = ref [] in
@@ -104,6 +108,7 @@ module Quick =
       !trace
       |> List.rev
       |> List.filter (fun (a, b) -> a != b)
+      |> List.map (fun (a, b) -> Swap (a, b))
   end
 
 module Sort : Animation.T =
@@ -180,7 +185,7 @@ module Sort : Animation.T =
 
     (* TODO(#123): animate_move is not available to all of the animations *)
     let animate_move (p: Picture.t) (start: Vec2.t) (finish: Vec2.t): Picture.t Flow.t =
-      let duration = 0.15 in
+      let duration = 0.5 in
       let n = floor (duration /. delta_time) in
       let r = delta_time /. duration in
       let dir = let open Vec2 in finish |-| start in
@@ -220,23 +225,36 @@ module Sort : Animation.T =
               (animate_move dot1 p1 p2)
               (animate_move dot2 p2 p1))
 
+    (* TODO: animate_assign is not implemented *)
+    let animate_assign (i, x: int * int) (xs: int list): Picture.t Flow.t = Flow.nil
+
     (* TODO(#124): animate_wait is not available to all of the animations *)
     let animate_wait (seconds: float) (fps: int) (p: Picture.t): Picture.t Flow.t =
       Flow.replicate (floor (seconds *. float_of_int fps) |> int_of_float) p
 
-    let animate_trace (xs: int list) (trace: (int * int) list): Picture.t Flow.t =
+    let animate_trace (xs: int list) (trace: action_t list): Picture.t Flow.t =
       let n = List.length trace in
       let states =
         let arr = Array.of_list xs in
         xs :: (trace
-               |> List.map (fun (i, j) ->
-                      arr |> Array.swap i j;
-                      arr |> Array.to_list))
+               |> List.map (function
+                        Swap (i, j) ->
+                         arr |> Array.swap i j;
+                         arr |> Array.to_list
+                      | Assign (i, x) ->
+                         arr |> Array.to_list))
       in
       let last_state = List.nth states n
                        |> render_array
                        |> animate_wait 2.0 fps
-      in (List.map2 animate_swap trace (states |> List.take n)
+      in (List.map2 (fun action state ->
+              match action with
+                Swap (i, j) ->
+                 animate_swap (i, j) state
+              | Assign (i, x) ->
+                 animate_assign (i, x) state)
+            trace
+            (states |> List.take n)
           @ [last_state])
          |> List.fold_left Flow.concat Flow.nil
 
