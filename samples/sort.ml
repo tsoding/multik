@@ -122,13 +122,17 @@ module Quick =
         pivot_nth (l + (h - l) / 2) l h
       in
 
+      let pivot_random (l: int) (h: int): int =
+        pivot_nth (l + Random.int (h - l)) l h
+      in
+
       let rec quick_trace_impl (l: int) (h: int) (pivot: int -> int -> int): unit =
         if h - l >= 2 then
           let p = pivot l h in
           quick_trace_impl l p pivot;
           quick_trace_impl (p + 1) h pivot
       in
-      quick_trace_impl 0 n pivot_first;
+      quick_trace_impl 0 n pivot_random;
       print_endline "";
       !trace
       |> List.rev
