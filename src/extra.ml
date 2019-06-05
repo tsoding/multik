@@ -37,10 +37,13 @@ module Array =
 
 module Random =
   struct
-    let rec int_list (bound: int) (n: int): int list =
-      if n <= 0
-      then []
-      else Random.int bound :: int_list bound (n - 1)
+    let int_list (bound: int) (n: int): int list =
+      let rec int_list_impl (i: int) (acc: int list) =
+        if i < n
+        then int_list_impl (i + 1) (Random.int bound :: acc)
+        else acc
+      in
+      int_list_impl 0 []
 
     include Random
   end
