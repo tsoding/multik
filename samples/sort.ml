@@ -160,7 +160,7 @@ module Sort : Animation.T =
       Picture.sizeOf p
         (fun (_, _, w, h) ->
           p |> Picture.translate (width *. 0.5 -. w *. 0.5,
-                                  height *. 0.5 -. h *. 0.5))
+                                  height *. 0.5))
 
     let kkona_snek (angle: float) =
       List.range 1 30
@@ -184,8 +184,7 @@ module Sort : Animation.T =
     type t = float
 
     (* TODO(#123): animate_move is not available to all of the animations *)
-    let animate_move (p: Picture.t) (start: Vec2.t) (finish: Vec2.t): Picture.t Flow.t =
-      let duration = 0.2 in
+    let animate_move (duration: float) (p: Picture.t) (start: Vec2.t) (finish: Vec2.t): Picture.t Flow.t =
       let n = floor (duration /. delta_time) in
       let r = delta_time /. duration in
       let dir = let open Vec2 in finish |-| start in
@@ -194,6 +193,15 @@ module Sort : Animation.T =
              let open Vec2 in
              p
              |> Picture.translate (start |+| (dir |**| (r *. float_of_int i))))
+
+    let animate_hop (duration: float) (height: float) (p: Picture.t): Picture.t Flow.t =
+      let up = animate_move
+                 (duration *. 0.5) p (0.0, 0.0) (0.0, -. height)
+      in
+      let down = animate_move
+                   (duration *. 0.5) p (0.0, -. height) (0.0, 0.0)
+      in
+      Flow.concat up down
 
     let animate_swap (a, b: int * int) (xs: int list): Picture.t Flow.t =
       let (i, j) = if a > b then (b, a) else (a, b) in
@@ -214,6 +222,7 @@ module Sort : Animation.T =
                     |> List.excludeNth j
                     |> List.excludeNth i
       in
+      let duration = 0.2 in
       [List.map2 Picture.translate rest_ps rest_dots
        |> Picture.compose]
       |> Flow.of_list
@@ -222,23 +231,32 @@ module Sort : Animation.T =
            Picture.compose2
            (Flow.zipWith
               Picture.compose2
-              (animate_move dot1 p1 p2)
-              (animate_move dot2 p2 p1))
+              (animate_move duration dot1 p1 p2)
+              (animate_move duration dot2 p2 p1))
 
     (* TODO(#124): animate_wait is not available to all of the animations *)
     let animate_wait (seconds: float) (fps: int) (p: Picture.t): Picture.t Flow.t =
       Flow.replicate (floor (seconds *. float_of_int fps) |> int_of_float) p
 
     let animate_assign (i, x: int * int) (xs: int list): Picture.t Flow.t =
-      let plox = string_of_int x |> dot highlight_color in
       let dots = xs
                  |> List.map string_of_int
-                 |> List.map (dot foreground_color)
-                 |> List.replaceNth i plox in
+                 |> List.map (dot foreground_color) in
       let ps = row_layout row_padding dots in
-      List.map2 Picture.translate ps dots
-      |> Picture.compose
-      |> animate_wait 0.05 fps
+      let plox = string_of_int x
+                 |> dot highlight_color
+                 |> Picture.translate (List.nth ps i)
+      in
+      let background = List.map2
+                         Picture.translate
+                         (ps |> List.excludeNth i)
+                         (dots |> List.excludeNth i)
+                       |> Picture.compose
+      in
+      Flow.zipWith
+        Picture.compose2
+        (Flow.iterate (fun a -> a) background)
+        (animate_hop 0.07 15.0 plox)
 
     let animate_trace (xs: int list) (trace: action_t list): Picture.t Flow.t =
       let n = List.length trace in
