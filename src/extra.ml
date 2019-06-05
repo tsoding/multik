@@ -11,6 +11,9 @@ module List =
       |> List.filter (fun (i, _) -> i != n)
       |> List.map snd
 
+    let replaceNth (n: int) (x: 'a) (xs: 'a list): 'a list =
+      List.mapi (fun i y -> if i == n then x else y) xs
+
     let rec take (n: int) (xs: 'a list): 'a list =
       if n <= 0
       then []
