@@ -18,6 +18,7 @@ module Bubble =
               Array.set input j b;
               Array.set input (j + 1) a;
               output := Swap (j, j + 1) :: !output
+              (* output := Assign (j, b) :: Assign (j + 1, a) :: !output *)
             end
         done
       done;
@@ -29,35 +30,29 @@ module Merge =
     let merge_array (xs: int array) (l: int) (m: int) (h: int): action_t list =
       let n = h - l in
       let ys = Array.make n 0 in
-      let is = Array.make n 0 in
       let rec merge_array_impl (i: int) (j: int) (k: int): unit =
         match () with
         | _ when (i >= m) && (j >= h) -> ()
         | _ when i >= m ->      (* ran out of left, pick right *)
            Array.set ys k (Array.get xs j);
-           Array.set is k j;
            merge_array_impl i (j + 1) (k + 1)
         | _ when j >= h ->      (* ran out of right, pick left *)
            Array.set ys k (Array.get xs i);
-           Array.set is k i;
            merge_array_impl (i + 1) j (k + 1)
         | _ when Array.get xs i < Array.get xs j -> (* pick left *)
            Array.set ys k (Array.get xs i);
-           Array.set is k i;
            merge_array_impl (i + 1) j (k + 1)
         | _ when Array.get xs i >= Array.get xs j -> (* pick right *)
            Array.set ys k (Array.get xs j);
-           Array.set is k j;
            merge_array_impl i (j + 1) (k + 1)
         | _ -> failwith "Should never happen"
       in
-      merge_array_impl l h 0;
+      merge_array_impl l m 0;
       Array.blit ys 0 xs l (h - l);
-      List.map2 (fun a b -> (a, b)) (Array.to_list is) (List.range l (h - 1))
-      |> List.filter (fun (a, b) -> a != b)
-      |> List.map (fun (a, b) -> Swap (a, b))
+      ys
+      |> Array.to_list
+      |> List.mapi (fun i y -> Assign (l + i, y))
 
-    (* TODO(#128): merge_trace cannot not generate a correct trace *)
     let trace (xs: int list): action_t list =
       let rec merge_trace_impl (xs: int array) (l: int) (h: int): action_t list =
         if h - l <= 1
@@ -68,7 +63,11 @@ module Merge =
              let t3 = merge_array xs l m h in
              t1 @ t2 @ t3
       in
-      merge_trace_impl (Array.of_list xs) 0 (List.length xs)
+      let arr = Array.of_list xs in
+      let t = merge_trace_impl arr 0 (List.length xs) in
+      arr |> Array.iter (Printf.printf "%d ");
+      print_endline "";
+      t
   end
 
 module Quick =
@@ -120,6 +119,8 @@ module Sort : Animation.T =
     let delta_time = 1.0 /. float_of_int fps
 
     let background_color = (0.1, 0.1, 0.1, 1.0)
+    let foreground_color = (1.0, 0.2, 0.2, 1.0)
+    let highlight_color = (0.2, 1.0, 0.2, 1.0)
 
     let background: Picture.t =
       Picture.rect (width, height)
@@ -132,9 +133,8 @@ module Sort : Animation.T =
                         |> Picture.translate (offset, offset)
                       ; p ]
 
-    let dot (titleText: string): Picture.t =
+    let dot (circle_color: Color.t) (titleText: string): Picture.t =
       let radius = 25.0 in
-      let circle_color = (1.0, 0.2, 0.2, 1.0) in
       let text_color = (0.8, 0.8, 0.8, 1.0) in
       Picture.compose
         [ Picture.circle radius
@@ -153,9 +153,8 @@ module Sort : Animation.T =
       xs |> List.mapi (fun i _ -> (padding *. float_of_int i, 0.0))
 
     (* TODO(#122): row layouting should be available to all animations *)
-    let row (padding: float) (ps: Picture.t list): Picture.t =
+    let row (padding: float) (ps: Picture.t list): Picture.t list =
       List.map2 Picture.translate (row_layout padding ps) ps
-      |> Picture.compose
 
     let screenCenter (p: Picture.t): Picture.t =
       Picture.sizeOf p
@@ -178,14 +177,15 @@ module Sort : Animation.T =
     let render_array (xs: int list): Picture.t =
       xs
       |> List.map string_of_int
-      |> List.map dot
+      |> List.map (dot foreground_color)
       |> row row_padding
+      |> Picture.compose
 
     type t = float
 
     (* TODO(#123): animate_move is not available to all of the animations *)
     let animate_move (p: Picture.t) (start: Vec2.t) (finish: Vec2.t): Picture.t Flow.t =
-      let duration = 0.5 in
+      let duration = 0.2 in
       let n = floor (duration /. delta_time) in
       let r = delta_time /. duration in
       let dir = let open Vec2 in finish |-| start in
@@ -199,7 +199,7 @@ module Sort : Animation.T =
       let (i, j) = if a > b then (b, a) else (a, b) in
       let dots = xs
                  |> List.map string_of_int
-                 |> List.map dot
+                 |> List.map (dot foreground_color)
       in
       let ps = row_layout row_padding dots in
       let dot1 = List.nth dots i in
@@ -225,12 +225,20 @@ module Sort : Animation.T =
               (animate_move dot1 p1 p2)
               (animate_move dot2 p2 p1))
 
-    (* TODO: animate_assign is not implemented *)
-    let animate_assign (i, x: int * int) (xs: int list): Picture.t Flow.t = Flow.nil
-
     (* TODO(#124): animate_wait is not available to all of the animations *)
     let animate_wait (seconds: float) (fps: int) (p: Picture.t): Picture.t Flow.t =
       Flow.replicate (floor (seconds *. float_of_int fps) |> int_of_float) p
+
+    let animate_assign (i, x: int * int) (xs: int list): Picture.t Flow.t =
+      let plox = string_of_int x |> dot highlight_color in
+      let dots = xs
+                 |> List.map string_of_int
+                 |> List.map (dot foreground_color)
+                 |> List.replaceNth i plox in
+      let ps = row_layout row_padding dots in
+      List.map2 Picture.translate ps dots
+      |> Picture.compose
+      |> animate_wait 0.05 fps
 
     let animate_trace (xs: int list) (trace: action_t list): Picture.t Flow.t =
       let n = List.length trace in
@@ -242,6 +250,7 @@ module Sort : Animation.T =
                          arr |> Array.swap i j;
                          arr |> Array.to_list
                       | Assign (i, x) ->
+                         Array.set arr i x;
                          arr |> Array.to_list))
       in
       let last_state = List.nth states n
@@ -260,7 +269,7 @@ module Sort : Animation.T =
 
     let frames =
       let xs = Random.int_list 50 35 in
-      let trace = Quick.trace xs in
+      let trace = Merge.trace xs in
       trace |> List.length |> Printf.printf "Number of swaps: %d\n";
       Flow.zipWith
         Picture.compose2
