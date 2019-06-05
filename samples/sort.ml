@@ -76,27 +76,8 @@ module Quick =
       let n = List.length xs in
       let ys = Array.of_list xs in
       let trace = ref [] in
-      let pivot_first (l: int) (h: int): int =
-        let rec pivot_impl (p: int) (i: int): int =
-          if i < h then
-            (if (Array.get ys p) > (Array.get ys i) then
-               begin
-                 Array.swap (p + 1) i ys;
-                 trace := ((p + 1), i) :: !trace;
 
-                 Array.swap p (p + 1) ys;
-                 trace := (p, (p + 1)) :: !trace;
-
-                 pivot_impl (p + 1) (i + 1)
-               end
-             else
-               pivot_impl p (i + 1))
-          else p
-        in
-        pivot_impl l (l + 1)
-      in
-
-      let pivot_middle (l: int) (h: int): int =
+      let pivot_nth (p0: int) (l: int) (h: int): int =
         let rec pivot_left (p: int) (i: int): int =
           if i < p then
             (if (Array.get ys p) <= (Array.get ys i)
@@ -129,17 +110,25 @@ module Quick =
                pivot_right p (i + 1))
           else p
         in
-        let p0 = l + (h - l) / 2 in
         let p1 = pivot_left p0 l in
         pivot_right p1 (p1 + 1)
       in
+
+      let pivot_first (l: int) (h: int): int =
+        pivot_nth l l h
+      in
+
+      let pivot_middle (l: int) (h: int): int =
+        pivot_nth (l + (h - l) / 2) l h
+      in
+
       let rec quick_trace_impl (l: int) (h: int) (pivot: int -> int -> int): unit =
         if h - l >= 2 then
           let p = pivot l h in
           quick_trace_impl l p pivot;
           quick_trace_impl (p + 1) h pivot
       in
-      quick_trace_impl 0 n pivot_middle;
+      quick_trace_impl 0 n pivot_first;
       print_endline "";
       !trace
       |> List.rev
@@ -174,8 +163,9 @@ module Sort : Animation.T =
       let radius = 25.0 in
       let text_color = (0.8, 0.8, 0.8, 1.0) in
       Picture.compose
-        [ Picture.circle radius
-          |> Picture.color circle_color
+        [ Picture.image "./kkona.png"
+          (* Picture.circle radius
+           * |> Picture.color circle_color *)
         ; let title =
             Picture.text (Font.make "Ubuntu Mono" (radius *. 1.2)) titleText
             |> shadow
@@ -259,7 +249,7 @@ module Sort : Animation.T =
                     |> List.excludeNth j
                     |> List.excludeNth i
       in
-      let duration = 0.07 in
+      let duration = 0.1 in
       [List.map2 Picture.translate rest_ps rest_dots
        |> Picture.compose]
       |> Flow.of_list
