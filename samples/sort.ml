@@ -76,9 +76,25 @@ module Quick =
       let n = List.length xs in
       let ys = Array.of_list xs in
       let trace = ref [] in
-      (* TODO(#129): it would be interesting to take a look at several pivoting strategies *)
-      let pivot (l: int) (h: int): int =
-        let rec pivot_impl (p: int) (i: int): int =
+
+      let pivot_nth (p0: int) (l: int) (h: int): int =
+        let rec pivot_left (p: int) (i: int): int =
+          if i < p then
+            (if (Array.get ys p) <= (Array.get ys i)
+             then
+               begin
+                 Array.swap i (p - 1) ys;
+                 trace := (i, (p - 1)) :: !trace;
+
+                 Array.swap (p - 1) p ys;
+                 trace := ((p - 1), p) :: !trace;
+
+                 pivot_left (p - 1) i
+               end
+             else pivot_left p (i + 1))
+          else p
+        in
+        let rec pivot_right (p: int) (i: int): int =
           if i < h then
             (if (Array.get ys p) > (Array.get ys i) then
                begin
@@ -88,21 +104,35 @@ module Quick =
                  Array.swap p (p + 1) ys;
                  trace := (p, (p + 1)) :: !trace;
 
-                 pivot_impl (p + 1) (i + 1)
+                 pivot_right (p + 1) (i + 1)
                end
              else
-               pivot_impl p (i + 1))
+               pivot_right p (i + 1))
           else p
         in
-        pivot_impl l (l + 1)
+        let p1 = pivot_left p0 l in
+        pivot_right p1 (p1 + 1)
       in
-      let rec quick_trace_impl (l: int) (h: int): unit =
+
+      let pivot_first (l: int) (h: int): int =
+        pivot_nth l l h
+      in
+
+      let pivot_middle (l: int) (h: int): int =
+        pivot_nth (l + (h - l) / 2) l h
+      in
+
+      let pivot_random (l: int) (h: int): int =
+        pivot_nth (l + Random.int (h - l)) l h
+      in
+
+      let rec quick_trace_impl (l: int) (h: int) (pivot: int -> int -> int): unit =
         if h - l >= 2 then
           let p = pivot l h in
-          quick_trace_impl l p;
-          quick_trace_impl (p + 1) h
+          quick_trace_impl l p pivot;
+          quick_trace_impl (p + 1) h pivot
       in
-      quick_trace_impl 0 n;
+      quick_trace_impl 0 n pivot_random;
       print_endline "";
       !trace
       |> List.rev
@@ -137,8 +167,9 @@ module Sort : Animation.T =
       let radius = 25.0 in
       let text_color = (0.8, 0.8, 0.8, 1.0) in
       Picture.compose
-        [ Picture.circle radius
-          |> Picture.color circle_color
+        [ Picture.image "./kkona.png"
+          (* Picture.circle radius
+           * |> Picture.color circle_color *)
         ; let title =
             Picture.text (Font.make "Ubuntu Mono" (radius *. 1.2)) titleText
             |> shadow
@@ -222,7 +253,7 @@ module Sort : Animation.T =
                     |> List.excludeNth j
                     |> List.excludeNth i
       in
-      let duration = 0.2 in
+      let duration = 0.1 in
       [List.map2 Picture.translate rest_ps rest_dots
        |> Picture.compose]
       |> Flow.of_list
@@ -287,7 +318,7 @@ module Sort : Animation.T =
 
     let frames =
       let xs = Random.int_list 50 35 in
-      let trace = Merge.trace xs in
+      let trace = Quick.trace xs in
       trace |> List.length |> Printf.printf "Number of swaps: %d\n";
       Flow.zipWith
         Picture.compose2
