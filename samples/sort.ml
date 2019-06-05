@@ -167,9 +167,8 @@ module Sort : Animation.T =
       let radius = 25.0 in
       let text_color = (0.8, 0.8, 0.8, 1.0) in
       Picture.compose
-        [ Picture.image "./kkona.png"
-          (* Picture.circle radius
-           * |> Picture.color circle_color *)
+        [ Picture.circle radius
+          |> Picture.color circle_color
         ; let title =
             Picture.text (Font.make "Ubuntu Mono" (radius *. 1.2)) titleText
             |> shadow
@@ -284,10 +283,11 @@ module Sort : Animation.T =
                          (dots |> List.excludeNth i)
                        |> Picture.compose
       in
+      let duration = 0.1 in
       Flow.zipWith
         Picture.compose2
         (Flow.iterate (fun a -> a) background)
-        (animate_hop 0.07 15.0 plox)
+        (animate_hop duration 15.0 plox)
 
     let animate_trace (xs: int list) (trace: action_t list): Picture.t Flow.t =
       let n = List.length trace in
@@ -318,7 +318,7 @@ module Sort : Animation.T =
 
     let frames =
       let xs = Random.int_list 50 35 in
-      let trace = Quick.trace xs in
+      let trace = Merge.trace xs in
       trace |> List.length |> Printf.printf "Number of swaps: %d\n";
       Flow.zipWith
         Picture.compose2
